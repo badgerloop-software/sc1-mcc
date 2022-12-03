@@ -6,8 +6,8 @@
 
 
 /// GPIO CAN Outputs
-//  rps - Address: XXX
-//  GPIO- Address: XXX
+//  RPM - Address: 200
+//  GPIO- Address: 201
 //    Bit 0  | Power
 //    Bit 1  | Direction
 //    Bit 2  | Brake
@@ -20,10 +20,10 @@
 
 
 /// Initializes all GPIO interrupts
-//  Initializes functions which update GPIO and rpm at specified interval
+//  Initializes functions which update GPIO and RPM at specified interval
 //  On update, functions check if change occurs. Queues CAN message if yes
 //  Returns 0 on success, -1 on failure
-int initGPIO(uint16_t pollPeriodMS, uint16_t rpsCalcPeriodMS);
+int initGPIO(std::chrono::microseconds pollPeriodMS, std::chrono::microseconds rpmCalcPeriodMS);
 
 /// Disables all GPIO interrupts and update functions
 //  Run and reinit if desired to change poll/rps periods
