@@ -6,7 +6,7 @@
 
 /// Initializes CAN on pins and output queue
 //  Returns 0 on success, -1 on failure
-int CANInit(int frequency);
+int initCAN(int frequency);
 
 
 /// Sends CAN message from queue whenever entry present

@@ -14,7 +14,7 @@ extern EventFlags queueFlags;
 //    Bit 0  | Power
 //    Bit 1  | Direction
 //    Bit 2  | Brake
-//    Bit 3  | Operation Mode
+//    Bit 3  | Operation Mode (Eco)
 //    Bit 4  | Cruise On/Off
 //    Bit 5  | Cruise Mode
 //    Bit 6  | MC Status LED

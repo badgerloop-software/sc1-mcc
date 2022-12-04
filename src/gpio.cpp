@@ -7,6 +7,14 @@ static float curRPM;
 static uint64_t counter;
 static float rpsCalcConstant;
 
+#define POWER_BIT       0x01
+#define DIRECTON_BIT    0x02
+#define BRAKE_BIT       0x04
+#define ECO_BIT         0x08
+#define CRZ_EN_BIT      0x10
+#define CRZ_M_BIT       0x20
+#define MC_STAT_BIT     0x40
+
 // Initialize GPIO pins
 InterruptIn spdPulse(D1);
 InterruptIn CrzA(D3);
@@ -44,12 +52,64 @@ void incrTick() {
 
 /// Updates the curGPIO at fixed interval
 void updateGPIO() {
-    // Brake
-    if (BrakeDebounce.elapsed_time() > 5ms) {
+    uint16_t oldGPIO = curGPIO;
 
+    // Update if signals have been stable
+    if (BrakeDebounce.elapsed_time() > 5ms) {
+        if (BrkStatus.read()) {
+            curGPIO |= BRAKE_BIT;
+        } else {
+            curGPIO &= ~BRAKE_BIT;
+        }
     }
     if (GenGPIODebouce.elapsed_time() > 5ms) {
+        if (Power.read()) {
+            curGPIO |= POWER_BIT;
+        } else {
+            curGPIO &= ~POWER_BIT;
+        }
 
+        if (Direction.read()) {
+            curGPIO |= DIRECTON_BIT;
+        } else {
+            curGPIO &= ~DIRECTON_BIT;
+        }
+
+        if (Eco.read()) {
+            curGPIO |= ECO_BIT;
+        } else {
+            curGPIO &= ~ECO_BIT;
+        }
+
+        // Cruise off takes priority over on
+        if (CrzRst.read()) {
+            curGPIO &= ~CRZ_EN_BIT;
+        } else if (CrzSet.read()) {
+            curGPIO |= CRZ_EN_BIT;
+        }
+
+        // Cruise Mode A priority over B
+        if (CrzA.read()) {
+            curGPIO &= ~CRZ_M_BIT;
+        } else if (CrzB.read()) {
+            curGPIO |= CRZ_M_BIT;
+        }
+
+        if (MCStatus.read()) {
+            curGPIO |= MC_STAT_BIT;
+        } else {
+            curGPIO &= ~MC_STAT_BIT;
+        }
+    }
+
+    // If change, send CAN
+    if (oldGPIO != curGPIO) {
+        if (queueSem.try_acquire_for(1ms)) {
+            *(outputQueue[1].data) = curGPIO;
+
+            queueSem.release();
+            queueFlags.set(2);
+        }
     }
 
     BrakeDebounce.reset();

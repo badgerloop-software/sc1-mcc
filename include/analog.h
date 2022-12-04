@@ -10,7 +10,7 @@ extern EventFlags queueFlags;
 /// Initializes analog update functions at specified period
 //  Automatically queues updated value to can output
 //  Returns 0 on success, -1 on failure
-int analogInit(std::chrono::milliseconds pollRateMS);
+int initAnalog(std::chrono::milliseconds pollRateMS);
 
 /// Disables all analog output functions
 //  Run and reinit to change poll rate
