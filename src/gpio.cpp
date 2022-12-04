@@ -104,12 +104,10 @@ void updateGPIO() {
 
     // If change, send CAN
     if (oldGPIO != curGPIO) {
-        if (queueSem.try_acquire_for(1ms)) {
-            *(outputQueue[1].data) = curGPIO;
+        *(outputQueue[1].data) = curGPIO;
 
-            queueSem.release();
-            queueFlags.set(2);
-        }
+        queueFlags.set(1UL << 1);
+        
     }
 
     BrakeDebounce.reset();
@@ -123,12 +121,10 @@ void updateRPS() {
     counter = 0;
 
     // Send over CAN
-    if (queueSem.try_acquire_for(1ms)) {
-        *(outputQueue[0].data) = curRPM;
 
-        queueSem.release();
-        queueFlags.set(1);
-    }
+    *(outputQueue[0].data) = curRPM;
+    queueFlags.set(1UL << 0);
+    
 }
 
 /// Initializes all GPIO interrupts

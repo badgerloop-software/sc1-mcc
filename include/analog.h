@@ -3,6 +3,10 @@
 
 #include "mbed.h"
 
+/// GPIO CAN Outputs
+//  Acc - Address: 202
+//  Brk - Address: 203
+
 extern Semaphore queueSem;
 extern CANMessage outputQueue[4];
 extern EventFlags queueFlags;
