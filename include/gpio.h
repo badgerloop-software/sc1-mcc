@@ -4,6 +4,9 @@
 #include "mbed.h"
 #include "stdint.h"
 
+extern Semaphore queueSem;
+extern CANMessage outputQueue[4];
+extern EventFlags queueFlags;
 
 /// GPIO CAN Outputs
 //  RPM - Address: 200
@@ -23,7 +26,7 @@
 //  Initializes functions which update GPIO and RPM at specified interval
 //  On update, functions check if change occurs. Queues CAN message if yes
 //  Returns 0 on success, -1 on failure
-int initGPIO(std::chrono::microseconds pollPeriodMS, std::chrono::microseconds rpmCalcPeriodMS);
+int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds rpmCalcPeriodMS);
 
 /// Disables all GPIO interrupts and update functions
 //  Run and reinit if desired to change poll/rps periods
