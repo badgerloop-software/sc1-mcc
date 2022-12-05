@@ -3,7 +3,6 @@
 
 #include "mbed.h"
 
-extern Semaphore queueSem;
 extern CANMessage outputQueue[4];
 extern EventFlags queueFlags;
 
