@@ -1,6 +1,8 @@
 # Solar Car 1 Motor Controller Controller
-*Author: Wilson Guo. \
+*Authors: Wilson Guo, Sebastien Criqui, Declan Stanton. \
  Mbed Studio Instructions stolen from pod-embedded-nucleo (Authors: Ezra Boley, Eric Udlis)*
+
+Repository for the Motor Controller Controller board powered by a Nucleo-L432KC. **__Running on Mbed OS v6.15.1__**
 
 ## Getting Started
 
@@ -15,6 +17,10 @@ To get started with Mbed Studio follow this quick guide
 7. Set the target as the "NUCLEO-L432KC"
 8. Enjoy programming your Mbed enabled STM Nucleo
 
+### To import the repo
+1. Go to file, then import. 
+2. Paste the http github repo link in the url field.
+3. I strongly recommend having a single copy of Mbed OS that is linked to and shared between projects. To do this, clone an instance of it from [the official repo](https://github.com/ARMmbed/mbed-os/tree/mbed-os-6.15.1) and link to the folder.
 
 ## Current Pin Usage. Check [MCC confluence page](https://badgerloop.atlassian.net/wiki/spaces/EL/pages/167378955/Motor+Controller+Controller+Rev+A+Design) for updates
 | Pin ID  | Type  | Usage   | Usage   | Type  | Pin ID|
