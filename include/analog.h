@@ -5,8 +5,16 @@
 #include "can.h"
 
 ///////////////////////////////////////////////////////////////////////
-/// SEE README IN "include" FOR IMPLEMENTATION AND MODIFICATION DETAILS
+/// SEE README IN "include" FOR HIGHER LEVEL DETAILS
 ///////////////////////////////////////////////////////////////////////
+// Current Analog Pins
+// ---------------------------------
+// Name        | Direction   | Pin    | CAN Offset
+// Accel In    | Input       | A0     | 3
+// Brake In    | Input       | A1     | 4
+// Accel Out   | Output      | A4     | n/a
+///////////////////////////////////////////////////////////////////////
+
 
 
 /// Initializes analog update functions at specified period

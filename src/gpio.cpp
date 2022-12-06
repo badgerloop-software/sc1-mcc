@@ -3,7 +3,7 @@
 
 
 // Variables 
-static uint16_t curGPIO;
+static uint16_t curGPIO; // Bitmap
 static float curRPM; 
 static uint64_t counter;
 static float rpsCalcConstant;

@@ -2,7 +2,7 @@
 *Author: Wilson Guo. \
  Mbed Studio Instructions stolen from pod-embedded-nucleo (Authors: Ezra Boley, Eric Udlis)*
 
-# Getting Started
+## Getting Started
 
 ### Mbed Studio
 As with any project, there are a million ways to flash an ARM chip. I prefer Mbed Studio because of it's all in one approach to building and flashing our STM32s under the hood. If you would like to use the CLI or some other method, feel free.
@@ -16,7 +16,7 @@ To get started with Mbed Studio follow this quick guide
 8. Enjoy programming your Mbed enabled STM Nucleo
 
 
-### Current Pin Usage. Check [MCC confluence page](https://badgerloop.atlassian.net/wiki/spaces/EL/pages/167378955/Motor+Controller+Controller+Rev+A+Design) for updates
+## Current Pin Usage. Check [MCC confluence page](https://badgerloop.atlassian.net/wiki/spaces/EL/pages/167378955/Motor+Controller+Controller+Rev+A+Design) for updates
 | Pin ID  | Type  | Usage   | Usage   | Type  | Pin ID|
 | :---:   | :---: | :---:   | :---:   | :---: | :---: |
 | PA9     | Dig   | Speed   |         |       | VIN   |
@@ -34,3 +34,13 @@ To get started with Mbed Studio follow this quick guide
 | PA11    | Dig   | CANRX   |         |       | AREF  |
 | PB5     | Dig   | MC Stat |         |       | 3V3   |
 | PB4     | Dig   | Brake   |         | Dig   | PB3   |
+
+
+## CAN IDs
+CAN Offset is 0x200 for this board
+| Signal Name | CAN ID |
+| :---------: | :----: |
+| RPM         | 0x200  |
+| GPIO Bitmap | 0x201  |
+| Accel Pedal | 0x202  |
+| Brake Pedal | 0x203  |

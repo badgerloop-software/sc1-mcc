@@ -1,11 +1,6 @@
 #include "can.h"
-#include <cstring>
 
-
-// 32 bit flag used to indicate if any messages are to be sent
-// Updating functions will set flag once new value updated in queue
-// CANSend will loop through queue cyclically to prevent starvation
-// Use same value for flag as in queue (ex RPM avail to send is indicated by bit 0)
+// Variables
 CANMessage outputQueue[TOTAL_SIG];
 EventFlags queueFlags;
 
@@ -19,10 +14,10 @@ CAN canBus(PA_11, PA_12);
 int initCAN(int frequency) {
     canBus.frequency(frequency);
 
-    outputQueue[RPM_SLOT].id = MCC_OFFSET + RPM_SLOT;
-    outputQueue[GPIO_SLOT].id = MCC_OFFSET + GPIO_SLOT;
-    outputQueue[ACC_SLOT].id = MCC_OFFSET + ACC_SLOT;
-    outputQueue[BRK_SLOT].id = MCC_OFFSET + BRK_SLOT;
+    // Initialize id's in CANMessage frames
+    for (int i = 0; i < TOTAL_SIG; i++) {
+        outputQueue[i].id = MCC_OFFSET + i;
+    }
     
     return 0;
 }
