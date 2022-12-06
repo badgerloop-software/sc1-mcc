@@ -1,32 +1,55 @@
 #include "analog.h"
 
+static float acc_in;
+static float brk_in;
+
+// Initialize Analog pins
 AnalogIn ACC_SIG(A0);
 AnalogIn BRK_SIG(A1);
 AnalogOut ACC_OUT(A4);
 
 
-
+// Update function ticker
 Ticker ACC_TIMER;
 
-void analogUpdate() {
-    float acc_in = ACC_SIG.read_voltage();
-    float brk_in = BRK_SIG.read_voltage();
-    *(outputQueue[2].data) = acc_in;
-    ACC_OUT.write(acc_in);
-    queueFlags.set(1UL << 2);
 
-    *(outputQueue[3].data) = brk_in;
-    queueFlags.set(1UL << 3);
+/// Updates analog readings
+//  Automatically adds updated values to proper CAN queue slot
+void analogUpdate() {
+    // Update internal values
+    acc_in = ACC_SIG.read_voltage();
+    brk_in = BRK_SIG.read_voltage();
+
+    // Pass through acceleration from pedal to motor
+    ACC_OUT.write(acc_in);
+
+    // Send new values over CAN
+    queueFlags.set(1UL << ACC_SLOT);
+    queueFlags.set(1UL << BRK_SLOT);
 }
 
+
 int initAnalog(std::chrono::milliseconds pollRateMS) {
+    // Reference for ADC. Should match voltage of AREF pin
     ACC_SIG.set_reference_voltage(5);
     BRK_SIG.set_reference_voltage(5);
+
+    // CAN Queue logistics
+    *(char**)(&(outputQueue[ACC_SLOT].data)) = (char*)&acc_in;
+    outputQueue[ACC_SLOT].len = sizeof(float);
+    *(char**)(&(outputQueue[BRK_SLOT].data)) = (char*)&brk_in;
+    outputQueue[BRK_SLOT].len = sizeof(float);
+
+    // Start pdating function
     ACC_TIMER.attach(analogUpdate, pollRateMS);
+
     return 0;
 }
 
+
 int disableAnalog() {
+    // Stop updating function
     ACC_TIMER.detach();
+
     return 0;    
 }

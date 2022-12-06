@@ -2,11 +2,12 @@
 #include <chrono>
 
 // Variables 
-static uint16_t curGPIO;        // See header for bitmap format
+static uint16_t curGPIO;
 static float curRPM; 
 static uint64_t counter;
 static float rpsCalcConstant;
 
+// Bitmap offsets
 #define POWER_BIT       0x01
 #define DIRECTON_BIT    0x02
 #define BRAKE_BIT       0x04
@@ -104,12 +105,10 @@ void updateGPIO() {
 
     // If change, send CAN
     if (oldGPIO != curGPIO) {
-        *(outputQueue[1].data) = curGPIO;
-
-        queueFlags.set(1UL << 1);
-        
+        queueFlags.set(1UL << GPIO_SLOT);
     }
 
+    // Reset timers to avoid overflow
     BrakeDebounce.reset();
     GenGPIODebouce.reset();
 }
@@ -121,19 +120,12 @@ void updateRPS() {
     counter = 0;
 
     // Send over CAN
-
-    *(outputQueue[0].data) = curRPM;
-    queueFlags.set(1UL << 0);
-    
+    queueFlags.set(1UL << RPM_SLOT);
 }
 
-/// Initializes all GPIO interrupts
-//  Initializes functions which update GPIO and rpm at specified interval
-//  On update, functions check if change occurs. Queues CAN message if yes
-//  Returns 0 on success, -1 on failure
+
 int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds rpmCalcPeriodMS) {
-    
-    // Interrupts
+    // Enable interrupts
     spdPulse.rise(clearGenGPIOTimer);
     spdPulse.fall(clearGenGPIOTimer);
     CrzA.rise(clearGenGPIOTimer);
@@ -159,7 +151,13 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
     // Divide by 48 to get rotation, divide by sampling interval to get per second, mult by 60 for min
     rpsCalcConstant = 1.25 / rpmCalcPeriodMS.count();
     
-    // Updating functions
+    // CAN Queue logistics
+    *(char**)(&(outputQueue[RPM_SLOT].data)) = (char*)&curRPM;
+    outputQueue[RPM_SLOT].len = sizeof(float);
+    *(char**)(&(outputQueue[GPIO_SLOT].data)) = (char*)&curGPIO;
+    outputQueue[GPIO_SLOT].len = sizeof(uint16_t);
+
+    // Start updating functions
     RPMTimer.attach(updateRPS, rpmCalcPeriodMS);
     GPIOTimer.attach(updateGPIO, pollPeriodMS);
 
@@ -170,11 +168,9 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
     return 0;
 }
 
-/// Disables all GPIO interrupts and update functions
-//  Run and reinit if desired to change poll/rps periods
-//  Returns 0 on success, -1 on failure
+
 int disableGPIO() {
-    // Interrupts
+    // Disable interrupts
     spdPulse.rise(NULL);
     spdPulse.fall(NULL);
     CrzA.rise(NULL);
@@ -196,13 +192,14 @@ int disableGPIO() {
     BrkStatus.rise(NULL);
     BrkStatus.fall(NULL);
 
-    // Updating functions
+    // Stop updating functions
     RPMTimer.detach();
     GPIOTimer.detach();
 
-    // Start timers
+    // Stop timers
     GenGPIODebouce.stop();
     BrakeDebounce.stop();
+
     return 0;
 }
 

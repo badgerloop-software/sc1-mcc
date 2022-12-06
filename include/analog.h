@@ -2,15 +2,15 @@
 #define __ANALOG_H__
 
 #include "mbed.h"
+#include "can.h"
 
 /// GPIO CAN Outputs
 //  Acc - Address: 202
 //  Brk - Address: 203
-extern CANMessage outputQueue[4];
-extern EventFlags queueFlags;
+
 
 /// Initializes analog update functions at specified period
-//  Automatically queues updated value to can output
+//  Updated values will be automatically added to can output queue
 //  Returns 0 on success, -1 on failure
 int initAnalog(std::chrono::milliseconds pollRateMS);
 

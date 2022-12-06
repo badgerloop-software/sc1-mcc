@@ -3,10 +3,7 @@
 
 #include "mbed.h"
 #include "stdint.h"
-
-extern Semaphore queueSem;
-extern CANMessage outputQueue[4];
-extern EventFlags queueFlags;
+#include "can.h"
 
 /// GPIO CAN Outputs
 //  RPM - Address: 200

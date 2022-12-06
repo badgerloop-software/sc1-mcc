@@ -4,7 +4,7 @@
 #include "gpio.h"
 
 
-// main() runs in its own thread in the OS
+/// Main code. Should initialize devices and then transform into the CAN loop
 int main()
 {
     // Initializes devices
