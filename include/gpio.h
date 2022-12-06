@@ -5,18 +5,9 @@
 #include "stdint.h"
 #include "can.h"
 
-/// GPIO CAN Outputs
-//  RPM - Address: 200
-//  GPIO- Address: 201
-//    Bit 0  | Power
-//    Bit 1  | Direction
-//    Bit 2  | Brake
-//    Bit 3  | Operation Mode (Eco)
-//    Bit 4  | Cruise On/Off
-//    Bit 5  | Cruise Mode
-//    Bit 6  | MC Status LED
-//    Bit 7  | UNUSED
-//    Bit 8  | UNUSED
+///////////////////////////////////////////////////////////////////////
+/// SEE README IN "include" FOR IMPLEMENTATION AND MODIFICATION DETAILS
+///////////////////////////////////////////////////////////////////////
 
 
 /// Initializes all GPIO interrupts
@@ -24,6 +15,7 @@
 //  On update, functions check if change occurs. Queues CAN message if yes
 //  Returns 0 on success, -1 on failure
 int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds rpmCalcPeriodMS);
+
 
 /// Disables all GPIO interrupts and update functions
 //  Run and reinit if desired to change poll/rps periods

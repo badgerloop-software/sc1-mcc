@@ -1,6 +1,7 @@
 #include "gpio.h"
 #include <chrono>
 
+
 // Variables 
 static uint16_t curGPIO;
 static float curRPM; 
@@ -31,7 +32,6 @@ InterruptIn BrkStatus(D12);
 // Timers and Function Tickers
 LowPowerTimer GenGPIODebouce;
 LowPowerTimer BrakeDebounce;
-
 Ticker RPMTimer;
 Ticker GPIOTimer;
 
@@ -51,7 +51,9 @@ void incrTick() {
     counter++;
 }
 
+
 /// Updates the curGPIO at fixed interval
+//  Automatically triggers CAN message on change
 void updateGPIO() {
     uint16_t oldGPIO = curGPIO;
 
@@ -63,6 +65,7 @@ void updateGPIO() {
             curGPIO &= ~BRAKE_BIT;
         }
     }
+
     if (GenGPIODebouce.elapsed_time() > 5ms) {
         if (Power.read()) {
             curGPIO |= POWER_BIT;
@@ -113,9 +116,11 @@ void updateGPIO() {
     GenGPIODebouce.reset();
 }
 
+
 /// Updates the RPM at a fixed interval
+//  Automatically triggers CAN message
 void updateRPS() {
-    // Update speed
+    // Update speed calculation
     curRPM = counter * rpsCalcConstant;
     counter = 0;
 

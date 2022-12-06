@@ -1,5 +1,7 @@
 #include "analog.h"
 
+
+// Variables
 static float acc_in;
 static float brk_in;
 
@@ -8,13 +10,12 @@ AnalogIn ACC_SIG(A0);
 AnalogIn BRK_SIG(A1);
 AnalogOut ACC_OUT(A4);
 
-
 // Update function ticker
 Ticker ACC_TIMER;
 
 
 /// Updates analog readings
-//  Automatically adds updated values to proper CAN queue slot
+//  Automatically triggers CAN message
 void analogUpdate() {
     // Update internal values
     acc_in = ACC_SIG.read_voltage();
