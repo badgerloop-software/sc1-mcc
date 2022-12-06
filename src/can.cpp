@@ -6,7 +6,7 @@
 // Updating functions will set flag once new value updated in queue
 // CANSend will loop through queue cyclically to prevent starvation
 // Use same value for flag as in queue (ex RPM avail to send is indicated by bit 0)
-CANMessage outputQueue[4];
+CANMessage outputQueue[TOTAL_SIG];
 EventFlags queueFlags;
 
 
@@ -31,15 +31,15 @@ int initCAN(int frequency) {
 /// Sends CAN message from queue whenever entry present
 //  Loops forever, main thread will transform into this
 void CANSend() {
-    uint8_t index = 0;
+    int curMessage;
 
     while (1) {
-        if (queueFlags.get() & (0x1 << index)) {
-            canBus.write(outputQueue[index]);
-            queueFlags.clear(0x1 << index);
-        }
+        // Wait for a message. Signaled by any bit in 32 bit flag being set
+        // Flag automatically cleared
+        curMessage = queueFlags.wait_any(0xFFFFFFFF);
 
-        index = (index + 1) % 4;
+        // Send it
+        canBus.write(outputQueue[curMessage]);
     }
 }
 

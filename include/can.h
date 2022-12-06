@@ -8,10 +8,12 @@
 ///////////////////////////////////////////////////////////////////////
 
 #define MCC_OFFSET  200
+#define TOTAL_SIG   4
 #define RPM_SLOT    0
 #define GPIO_SLOT   1
 #define ACC_SLOT    2
 #define BRK_SLOT    3
+
 
 extern CANMessage outputQueue[4];
 extern EventFlags queueFlags;
