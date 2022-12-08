@@ -35,17 +35,17 @@ void printTable(uint16_t gpio, float rpm, float accel,
   printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
   // Table printout
-  printf("  Signal Name  |  Value\n");
+//  printf("  Signal Name  |  Value\n");
   printf("  RPM          |  %4.2f\n", rpm);
-  printf("  Accel V      |  %4.2f\n", accel);
-  printf("  Brake V      |  %4.2f\n", brake);
-  printf("  Power        |  %s\n", (((gpio >> 0) & 0x1) ? "On" : "Off"));
-  printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Forward" : "Reverse"));  
-  printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "On" : "Off"));
-  printf("  Eco          |  %s\n", (((gpio >> 3) & 0x1) ? "Eco" : "Sport"));
-  printf("  Crz Enable   |  %s\n", (((gpio >> 4) & 0x1) ? "On" : "Off"));
-  printf("  Crz Mode     |  %s\n", (((gpio >> 5) & 0x1) ? "B" : "A"));
-  printf("  MC Status    |  %s\n", (((gpio >> 6) & 0x1) ? "Error" : ""));
+//   printf("  Accel V      |  %4.2f\n", accel);
+//   printf("  Brake V      |  %4.2f\n", brake);
+//   printf("  Power        |  %s\n", (((gpio >> 0) & 0x1) ? "On" : "Off"));
+//   printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Forward" : "Reverse"));  
+//   printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "On" : "Off"));
+//   printf("  Eco          |  %s\n", (((gpio >> 3) & 0x1) ? "Eco" : "Sport"));
+//   printf("  Crz Enable   |  %s\n", (((gpio >> 4) & 0x1) ? "On" : "Off"));
+//   printf("  Crz Mode     |  %s\n", (((gpio >> 5) & 0x1) ? "B" : "A"));
+//   printf("  MC Status    |  %s\n", (((gpio >> 6) & 0x1) ? "Error" : ""));
 
 }
 
@@ -64,7 +64,7 @@ void CANSend() {
 
         // printf("Raw Values: %4.2f\t%x\t%4.2f\t%4.2f\n", curRPM, curGPIO, acc_in, brk_in);
         printTable(curGPIO, curRPM, acc_in, brk_in);
-        wait_us(5000000);
+        wait_us(500000);
     }
 }
 
