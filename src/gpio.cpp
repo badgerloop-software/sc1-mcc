@@ -3,10 +3,10 @@
 
 
 // Variables 
-static uint16_t curGPIO; // Bitmap
-static float curRPM; 
-static uint64_t counter;
-static float rpsCalcConstant;
+static uint16_t curGPIO = 0; // Bitmap
+static float curRPM = 0;
+static uint64_t counter = 0;
+static float rpsCalcConstant = 0;
 
 // Bitmap offsets
 #define POWER_BIT       0x01

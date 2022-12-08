@@ -46,11 +46,11 @@ void printTable(uint16_t curGPIO, float curRPM, float curAccel,
 /// Sends CAN message from queue whenever entry present
 //  Loops forever, main thread will transform into this
 void CANSend() {
-    int curMessage;
-    int curGPIO;
-    float curRPM;
-    float acc_in;
-    float brk_in;
+    int curMessage = 0;
+    int curGPIO = 0;
+    float curRPM = 0;
+    float acc_in = 0;
+    float brk_in = 0;
 
     while (1) {
         // Wait for a message. Signaled by any bit in 32 bit flag being set
@@ -64,7 +64,7 @@ void CANSend() {
         acc_in = *(float*)outputQueue[2].data;
         brk_in = *(float*)outputQueue[3].data;
 
-        printf("Raw Values: %4.2f\t%u\t%4.2f\t%4.2f\n", curRPM, curGPIO, acc_in, brk_in);
+        printf("Raw Values: %4.2f\t%x\t%4.2f\t%4.2f\n", curRPM, curGPIO, acc_in, brk_in);
         // printTable(curGPIO, curRPM, acc_in, brk_in);
         wait_us(5000000);
     }

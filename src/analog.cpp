@@ -2,8 +2,8 @@
 
 
 // Variables
-static float acc_in;
-static float brk_in;
+static float acc_in = 0;
+static float brk_in = 0;
 
 // Initialize Analog pins
 AnalogIn ACC_SIG(A0);
