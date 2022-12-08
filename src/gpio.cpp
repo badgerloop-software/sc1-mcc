@@ -122,7 +122,7 @@ void updateGPIO() {
 //  Automatically triggers CAN message
 void updateRPS() {
     // Update speed calculation
-    curRPM = counter * rpsCalcConstant;
+    curRPM = (float)counter * rpsCalcConstant;
     counter = 0;
 
     // Send over CAN
@@ -132,8 +132,8 @@ void updateRPS() {
 
 int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds rpmCalcPeriodMS) {
     // Enable interrupts
-    spdPulse.rise(clearGenGPIOTimer);
-    spdPulse.fall(clearGenGPIOTimer);
+    spdPulse.rise(incrTick);
+  //  spdPulse.fall(incrTick);
     CrzA.rise(clearGenGPIOTimer);
     CrzA.fall(clearGenGPIOTimer);
     CrzB.rise(clearGenGPIOTimer);
@@ -155,8 +155,8 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
 
     // Set constant for conversion from motor ticks to rpm 
     // Divide by 48 to get rotation, divide by sampling interval to get per second, mult by 60 for min
-    rpsCalcConstant = 1.25 / rpmCalcPeriodMS.count();
-    
+    rpsCalcConstant = 1250 / rpmCalcPeriodMS.count();
+    printf("const %f\n" , rpsCalcConstant);
     // CAN Queue logistics
     // (char*)(outputQueue[RPM_SLOT].data) = (char*)&curRPM;
     // outputQueue[RPM_SLOT].len = sizeof(float);
