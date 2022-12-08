@@ -8,7 +8,7 @@
 int main()
 {
     // Initializes devices
-    initGPIO(10ms, 100ms);
+    initGPIO(100ms, 100ms);
     initAnalog(100ms);
     initCAN(125000);
 
