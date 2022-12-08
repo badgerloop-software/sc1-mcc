@@ -26,7 +26,7 @@ To get started with Mbed Studio follow this quick guide
 | Pin ID  | Type  | Usage   | Usage   | Type  | Pin ID|
 | :---:   | :---: | :---:   | :---:   | :---: | :---: |
 | PA9     | Dig   | Speed   |         |       | VIN   |
-| PA10    | Dig   |         |         |       | GND   |
+| PA10    | Dig   | Power   |         |       | GND   |
 | NRST    |       |         |         |       | NRST  |
 | GND     |       |         |         |       | 5V    |
 | PA12    | Dig   | CANTX   |         | Alg   | PA2   |
@@ -34,12 +34,12 @@ To get started with Mbed Studio follow this quick guide
 | PB7     | Dig   | CrzB    |         | Alg   | PA6   |
 | PB6     | Dig   | Crz Set | Acc Out | Alg   | PA5   |
 | PB1     | Dig   | Crz Rst |         | Alg   | PA4   |
-| D7      | Dig   | Power   |         | Alg   | PA3   |
-| D8      | Dig   | Dir     | Brk Sig | Alg   | PA1   |
+| D7      | Dig   | NOREAD  |         | Alg   | PA3   |
+| D8      | Dig   | NOREAD  | Brk Sig | Alg   | PA1   |
 | PA8     | Dig   | Eco     | Acc Sig | Alg   | PA0   |
 | PA11    | Dig   | CANRX   |         |       | AREF  |
 | PB5     | Dig   | MC Stat |         |       | 3V3   |
-| PB4     | Dig   | Brake   |         | Dig   | PB3   |
+| PB4     | Dig   | Brake   | Dir     | Dig   | PB3   |
 
 
 ## CAN IDs

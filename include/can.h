@@ -18,12 +18,10 @@
 //  1. Define a new offset (#define [NAME]_SLOT X) for your signal
 //     Use the next available integer
 //  2. Increment TOTAL_SIG by 1
-//  3. In init function for signal type, there is a CAN queue logistics
-//     section. Assign outputQueue[[NAME]_SLOT].len with your signal
-//     size and outputQueue[[NAME]_SLOT].data to point to the variable
-//     tracking your signal.
+//  3. Append information for your signal in message template arrays 
+//     in CANSend 
 //  4. When you want to send the message with your signals value, call
-//     queueFlags.set(1UL << [NAME]_SLOT). CANSend will do the rest.
+//     queueFlags.set([NAME]_SLOT). CANSend will do the rest.
 ///////////////////////////////////////////////////////////////////////
 
 
@@ -34,9 +32,13 @@
 #define ACC_SLOT    2
 #define BRK_SLOT    3
 
-
-extern CANMessage outputQueue[TOTAL_SIG];
 extern EventFlags queueFlags;
+
+// Current state variables
+extern float curAcc;
+extern float curBrk;
+extern float curRPM;
+extern uint16_t curGPIO;
 
 
 /// Initializes output queue id's

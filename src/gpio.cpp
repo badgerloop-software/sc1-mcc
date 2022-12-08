@@ -19,21 +19,20 @@ static float rpsCalcConstant = 0;
 #define MC_STAT_BIT     6
 
 // Initialize GPIO pins
+InterruptIn Power(D0);
 InterruptIn spdPulse(D1);
 InterruptIn CrzA(D3);
 InterruptIn CrzB(D4);
 InterruptIn CrzSet(D5);
 InterruptIn CrzRst(D6);
-InterruptIn Power(D0);
-InterruptIn Direction(D13);
 InterruptIn Eco(D9);
 InterruptIn MCStatus(D11);
 InterruptIn BrkStatus(D12);
-DigitalOut  TestOut(PA_10);
+InterruptIn Direction(D13);
 
 // Timers and Function Tickers
-Timer GenGPIODebouce;
-Timer BrakeDebounce;
+LowPowerTimer GenGPIODebouce;
+LowPowerTimer BrakeDebounce;
 Ticker RPMTimer;
 Ticker GPIOTimer;
 
@@ -60,7 +59,7 @@ void updateGPIO() {
     uint16_t oldGPIO = curGPIO;
 
     // Update if signals have been stable
-    if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() > 5) {
+    if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() > 50) {
         if (BrkStatus.read()) {
             curGPIO |= 1UL << BRAKE_BIT;
         } else {
@@ -68,7 +67,7 @@ void updateGPIO() {
         }
     }
 
-    if (duration_cast<milliseconds>(GenGPIODebouce.elapsed_time()).count() > 5) {
+    if (duration_cast<milliseconds>(GenGPIODebouce.elapsed_time()).count() > 50) {
         if (Power.read()) {
             curGPIO |= 1UL << POWER_BIT;
         } else {
@@ -108,9 +107,9 @@ void updateGPIO() {
         }
     }
 
-    // If change, send CAN
-    if (oldGPIO != curGPIO || GenGPIODebouce.elapsed_time() > 1000ms) {
-        queueFlags.set(1UL << GPIO_SLOT);
+    // If change, send CAN. Also send if stale in case of drop
+    if (oldGPIO != curGPIO || duration_cast<seconds>(GenGPIODebouce.elapsed_time()).count() > 30) {
+        queueFlags.set(GPIO_SLOT);
         // Reset timers to avoid overflow
         BrakeDebounce.reset();
         GenGPIODebouce.reset();
@@ -126,14 +125,13 @@ void updateRPS() {
     counter = 0;
 
     // Send over CAN
-    queueFlags.set(1UL << RPM_SLOT);
+    queueFlags.set(RPM_SLOT);
 }
 
 
 int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds rpmCalcPeriodMS) {
     // Enable interrupts
     spdPulse.rise(incrTick);
-  //  spdPulse.fall(incrTick);
     CrzA.rise(clearGenGPIOTimer);
     CrzA.fall(clearGenGPIOTimer);
     CrzB.rise(clearGenGPIOTimer);
@@ -155,13 +153,7 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
 
     // Set constant for conversion from motor ticks to rpm 
     // Divide by 48 to get rotation, divide by sampling interval to get per second, mult by 60 for min
-    rpsCalcConstant = 1250 / rpmCalcPeriodMS.count();
-    printf("const %f\n" , rpsCalcConstant);
-    // CAN Queue logistics
-    // (char*)(outputQueue[RPM_SLOT].data) = (char*)&curRPM;
-    // outputQueue[RPM_SLOT].len = sizeof(float);
-    // (char*)(outputQueue[GPIO_SLOT].data) = (char*)&curGPIO;
-    // outputQueue[GPIO_SLOT].len = sizeof(uint16_t);
+    rpsCalcConstant = (double)1250 / rpmCalcPeriodMS.count();
 
     // Start updating functions
     RPMTimer.attach(updateRPS, rpmCalcPeriodMS);
@@ -171,8 +163,6 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
     GenGPIODebouce.start();
     BrakeDebounce.start();
 
-    TestOut.write(1);
-
     return 0;
 }
 
@@ -180,7 +170,6 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
 int disableGPIO() {
     // Disable interrupts
     spdPulse.rise(NULL);
-    spdPulse.fall(NULL);
     CrzA.rise(NULL);
     CrzA.fall(NULL);
     CrzB.rise(NULL);

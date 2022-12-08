@@ -15,8 +15,6 @@
 // Accel Out   | Output      | A4     | n/a
 ///////////////////////////////////////////////////////////////////////
 
-
-
 /// Initializes analog update functions at specified period
 //  Updated values will be automatically added to can output queue
 //  Returns 0 on success, -1 on failure

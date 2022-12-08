@@ -8,24 +8,20 @@
 ///////////////////////////////////////////////////////////////////////
 /// SEE README IN "include" FOR HIGHER LEVEL DETAILS
 ///////////////////////////////////////////////////////////////////////
-// Current GPIO Pins
-// ---------------------------------
-// Name        | Direction   | CAN Offset  | Pin   
-// SpdPulse/RPM| Input       | 0           | D1             
-// GPIO Bitmap | Input       | 1           | D3 - D9, D11-D12  
-///////////////////////////////////////////////////////////////////////
-// GPIO Bitmap
+// GPIO Bitmap and Pins
 // ---------------------------------
 // Bit         | Name        | Pin(s)
-// 0           | Power       | D7
-// 1           | Direction   | D8
+// 0           | Power       | D0
+// 1           | Direction   | D13
 // 2           | Brake       | D12
 // 3           | Eco         | D9
 // 4           | Crz Enable  | D5/D6
 // 5           | Crz Mode    | D3/D4
 // 6           | MC Status   | D11
 // 7-15        | Unused      |  
+// NA          | Speed Pulse | D1
 ///////////////////////////////////////////////////////////////////////
+
 
 /// Initializes all GPIO interrupts
 //  Initializes functions which update GPIO and RPM at specified interval
