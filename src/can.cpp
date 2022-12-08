@@ -1,6 +1,12 @@
 #include "can.h"
 #include "stdio.h"
 
+extern uint16_t curGPIO;
+extern float curRPM;
+extern float acc_in;
+extern float brk_in;
+
+
 // Variables
 CANMessage outputQueue[TOTAL_SIG];
 EventFlags queueFlags;
@@ -23,23 +29,23 @@ int initCAN(int frequency) {
     return 0;
 }
 
-void printTable(uint16_t curGPIO, float curRPM, float curAccel,
-                float curBrake) {
+void printTable(uint16_t gpio, float rpm, float accel,
+                float brake) {
   // Wipe screen
   printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
   // Table printout
   printf("  Signal Name  |  Value\n");
-  printf("  RPM          |  %4.2f\n", curRPM);
-  printf("  Accel V      |  %4.2f\n", curAccel);
-  printf("  Brake V      |  %4.2f\n", curBrake);
-  printf("  Power        |  %s\n", (((curGPIO >> 0) & 0x1) ? "On" : "Off"));
-  printf("  Direction    |  %s\n", (((curGPIO >> 1) & 0x1) ? "Forward" : "Reverse"));  
-  printf("  Brake        |  %s\n", (((curGPIO >> 2) & 0x1) ? "On" : "Off"));
-  printf("  Eco          |  %s\n", (((curGPIO >> 3) & 0x1) ? "Eco" : "Sport"));
-  printf("  Crz Enable   |  %s\n", (((curGPIO >> 4) & 0x1) ? "On" : "Off"));
-  printf("  Crz Mode     |  %s\n", (((curGPIO >> 5) & 0x1) ? "B" : "A"));
-  printf("  MC Status    |  %s\n", (((curGPIO >> 6) & 0x1) ? "Error" : ""));
+  printf("  RPM          |  %4.2f\n", rpm);
+  printf("  Accel V      |  %4.2f\n", accel);
+  printf("  Brake V      |  %4.2f\n", brake);
+  printf("  Power        |  %s\n", (((gpio >> 0) & 0x1) ? "On" : "Off"));
+  printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Forward" : "Reverse"));  
+  printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "On" : "Off"));
+  printf("  Eco          |  %s\n", (((gpio >> 3) & 0x1) ? "Eco" : "Sport"));
+  printf("  Crz Enable   |  %s\n", (((gpio >> 4) & 0x1) ? "On" : "Off"));
+  printf("  Crz Mode     |  %s\n", (((gpio >> 5) & 0x1) ? "B" : "A"));
+  printf("  MC Status    |  %s\n", (((gpio >> 6) & 0x1) ? "Error" : ""));
 
 }
 
@@ -47,10 +53,6 @@ void printTable(uint16_t curGPIO, float curRPM, float curAccel,
 //  Loops forever, main thread will transform into this
 void CANSend() {
     int curMessage = 0;
-    int curGPIO = 0;
-    float curRPM = 0;
-    float acc_in = 0;
-    float brk_in = 0;
 
     while (1) {
         // Wait for a message. Signaled by any bit in 32 bit flag being set
@@ -59,13 +61,9 @@ void CANSend() {
 
         // Send it
         //canBus.write(outputQueue[curMessage]);
-        curRPM = *(float*)outputQueue[0].data;
-        curGPIO = *(uint16_t*)outputQueue[1].data;
-        acc_in = *(float*)outputQueue[2].data;
-        brk_in = *(float*)outputQueue[3].data;
 
-        printf("Raw Values: %4.2f\t%x\t%4.2f\t%4.2f\n", curRPM, curGPIO, acc_in, brk_in);
-        // printTable(curGPIO, curRPM, acc_in, brk_in);
+        // printf("Raw Values: %4.2f\t%x\t%4.2f\t%4.2f\n", curRPM, curGPIO, acc_in, brk_in);
+        printTable(curGPIO, curRPM, acc_in, brk_in);
         wait_us(5000000);
     }
 }

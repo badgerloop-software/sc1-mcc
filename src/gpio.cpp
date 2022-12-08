@@ -1,21 +1,22 @@
 #include "gpio.h"
 #include <chrono>
 
+using namespace std::chrono;
 
 // Variables 
-static uint16_t curGPIO = 0; // Bitmap
-static float curRPM = 0;
+uint16_t curGPIO = 0; // Bitmap
+float curRPM = 0;
 static uint64_t counter = 0;
 static float rpsCalcConstant = 0;
 
 // Bitmap offsets
-#define POWER_BIT       0x01
-#define DIRECTON_BIT    0x02
-#define BRAKE_BIT       0x04
-#define ECO_BIT         0x08
-#define CRZ_EN_BIT      0x10
-#define CRZ_M_BIT       0x20
-#define MC_STAT_BIT     0x40
+#define POWER_BIT       0
+#define DIRECTON_BIT    1
+#define BRAKE_BIT       2
+#define ECO_BIT         3
+#define CRZ_EN_BIT      4
+#define CRZ_M_BIT       5
+#define MC_STAT_BIT     6
 
 // Initialize GPIO pins
 InterruptIn spdPulse(D1);
@@ -23,15 +24,16 @@ InterruptIn CrzA(D3);
 InterruptIn CrzB(D4);
 InterruptIn CrzSet(D5);
 InterruptIn CrzRst(D6);
-InterruptIn Power(D7);
-InterruptIn Direction(D8);
+InterruptIn Power(D0);
+InterruptIn Direction(D13);
 InterruptIn Eco(D9);
 InterruptIn MCStatus(D11);
 InterruptIn BrkStatus(D12);
+DigitalOut  TestOut(PA_10);
 
 // Timers and Function Tickers
-LowPowerTimer GenGPIODebouce;
-LowPowerTimer BrakeDebounce;
+Timer GenGPIODebouce;
+Timer BrakeDebounce;
 Ticker RPMTimer;
 Ticker GPIOTimer;
 
@@ -58,62 +60,61 @@ void updateGPIO() {
     uint16_t oldGPIO = curGPIO;
 
     // Update if signals have been stable
-    if (BrakeDebounce.elapsed_time() > 5ms) {
+    if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() > 5) {
         if (BrkStatus.read()) {
-            curGPIO |= BRAKE_BIT;
+            curGPIO |= 1UL << BRAKE_BIT;
         } else {
-            curGPIO &= ~BRAKE_BIT;
+            curGPIO &= ~(1UL << BRAKE_BIT);
         }
     }
 
-    if (GenGPIODebouce.elapsed_time() > 5ms) {
+    if (duration_cast<milliseconds>(GenGPIODebouce.elapsed_time()).count() > 5) {
         if (Power.read()) {
-            curGPIO |= POWER_BIT;
+            curGPIO |= 1UL << POWER_BIT;
         } else {
-            curGPIO &= ~POWER_BIT;
+            curGPIO &= ~(1UL << POWER_BIT);
         }
 
         if (Direction.read()) {
-            curGPIO |= DIRECTON_BIT;
+            curGPIO |= 1UL << DIRECTON_BIT;
         } else {
-            curGPIO &= ~DIRECTON_BIT;
+            curGPIO &= ~(1UL << DIRECTON_BIT);
         }
 
         if (Eco.read()) {
-            curGPIO |= ECO_BIT;
+            curGPIO |= 1UL << ECO_BIT;
         } else {
-            curGPIO &= ~ECO_BIT;
+            curGPIO &= ~(1UL << ECO_BIT);
         }
 
         // Cruise off takes priority over on
         if (CrzRst.read()) {
-            curGPIO &= ~CRZ_EN_BIT;
+            curGPIO &= ~(1UL << CRZ_EN_BIT);
         } else if (CrzSet.read()) {
-            curGPIO |= CRZ_EN_BIT;
+            curGPIO |= 1UL << CRZ_EN_BIT;
         }
 
         // Cruise Mode A priority over B
         if (CrzA.read()) {
-            curGPIO &= ~CRZ_M_BIT;
+            curGPIO &= ~(1UL << CRZ_M_BIT);
         } else if (CrzB.read()) {
-            curGPIO |= CRZ_M_BIT;
+            curGPIO |= 1UL << CRZ_M_BIT;
         }
 
         if (MCStatus.read()) {
-            curGPIO |= MC_STAT_BIT;
+            curGPIO |= 1UL << MC_STAT_BIT;
         } else {
-            curGPIO &= ~MC_STAT_BIT;
+            curGPIO &= ~(1UL << MC_STAT_BIT);
         }
     }
 
     // If change, send CAN
-    if (oldGPIO != curGPIO) {
+    if (oldGPIO != curGPIO || GenGPIODebouce.elapsed_time() > 1000ms) {
         queueFlags.set(1UL << GPIO_SLOT);
-    }
-
-    // Reset timers to avoid overflow
-    BrakeDebounce.reset();
-    GenGPIODebouce.reset();
+        // Reset timers to avoid overflow
+        BrakeDebounce.reset();
+        GenGPIODebouce.reset();
+    }    
 }
 
 
@@ -157,10 +158,10 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
     rpsCalcConstant = 1.25 / rpmCalcPeriodMS.count();
     
     // CAN Queue logistics
-    *(char**)(&(outputQueue[RPM_SLOT].data)) = (char*)&curRPM;
-    outputQueue[RPM_SLOT].len = sizeof(float);
-    *(char**)(&(outputQueue[GPIO_SLOT].data)) = (char*)&curGPIO;
-    outputQueue[GPIO_SLOT].len = sizeof(uint16_t);
+    // (char*)(outputQueue[RPM_SLOT].data) = (char*)&curRPM;
+    // outputQueue[RPM_SLOT].len = sizeof(float);
+    // (char*)(outputQueue[GPIO_SLOT].data) = (char*)&curGPIO;
+    // outputQueue[GPIO_SLOT].len = sizeof(uint16_t);
 
     // Start updating functions
     RPMTimer.attach(updateRPS, rpmCalcPeriodMS);
@@ -169,6 +170,8 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
     // Start timers
     GenGPIODebouce.start();
     BrakeDebounce.start();
+
+    TestOut.write(1);
 
     return 0;
 }

@@ -2,8 +2,8 @@
 
 
 // Variables
-static float acc_in = 0;
-static float brk_in = 0;
+float acc_in = 0;
+float brk_in = 0;
 
 // Initialize Analog pins
 AnalogIn ACC_SIG(A0);
@@ -32,14 +32,14 @@ void analogUpdate() {
 
 int initAnalog(std::chrono::milliseconds pollRateMS) {
     // Reference for ADC. Should match voltage of AREF pin
-    ACC_SIG.set_reference_voltage(5);
-    BRK_SIG.set_reference_voltage(5);
+    ACC_SIG.set_reference_voltage(3.3);
+    BRK_SIG.set_reference_voltage(3.3);
 
     // CAN Queue logistics
-    *(char**)(&(outputQueue[ACC_SLOT].data)) = (char*)&acc_in;
-    outputQueue[ACC_SLOT].len = sizeof(float);
-    *(char**)(&(outputQueue[BRK_SLOT].data)) = (char*)&brk_in;
-    outputQueue[BRK_SLOT].len = sizeof(float);
+    // *(char**)(&(outputQueue[ACC_SLOT].data)) = (char*)&acc_in;
+    // outputQueue[ACC_SLOT].len = sizeof(float);
+    // *(char**)(&(outputQueue[BRK_SLOT].data)) = (char*)&brk_in;
+    // outputQueue[BRK_SLOT].len = sizeof(float);
 
     // Start pdating function
     ACC_TIMER.attach(analogUpdate, pollRateMS);
