@@ -8,7 +8,7 @@ float curBrk = 0;
 // Initialize Analog pins
 AnalogIn ACC_SIG(A0);
 AnalogIn BRK_SIG(A1);
-AnalogOut ACC_OUT(A4);
+AnalogOut ACC_OUT(A3);
 
 // Update function ticker
 Ticker ACC_TIMER;
