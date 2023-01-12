@@ -60,7 +60,7 @@ void CANSend() {
         printTable(curGPIO, curRPM, curAcc, curBrk);
         char mes = 1;
         canBus.write(CANMessage(200, &mes, 1));
-        wait_us(500000);
+        wait_us(2500000);
         #else
         // Send it
         canBus.write(CANMessage(canIDs[curMessage], (char*)dataPtrs[curMessage], lengths[curMessage]));
