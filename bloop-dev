@@ -1,0 +1,20 @@
+VERSION=latest
+MBED_OS_IMAGE=ghcr.io/armmbed/mbed-os-env:${VERSION}
+CONTAINER_HOSTNAME=bloop-dev
+
+if [[ $1 == "dev" ]]
+then
+    TARGET_IMAGE=dev
+elif [[ $1 == "setup-dev" ]]
+then
+    docker build -t dev .
+    echo "Image setup sucessfully, run $0 dev to build local image"
+    exit 0
+else
+    TARGET_IMAGE=${MBED_OS_IMAGE}
+    docker pull ${TARGET_IMAGE}
+fi
+
+echo "Targeting Image ${TARGET_IMAGE}"
+
+docker run -it -v "$(pwd)":/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
