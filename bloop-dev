@@ -1,4 +1,4 @@
-VERSION=latest
+VERSION=mbed-os-6.15.1-latest
 MBED_OS_IMAGE=ghcr.io/armmbed/mbed-os-env:${VERSION}
 CONTAINER_HOSTNAME=bloop-dev
 
@@ -17,4 +17,5 @@ fi
 
 echo "Targeting Image ${TARGET_IMAGE}"
 
-docker run -it -v "$(pwd)":/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
+docker run -it -v "$(pwd)":/src -h ${CONTAINER_HOSTNAME} -v /dev/disk/by-id:/dev/disk/by-id -v
+/dev/serial/by-id:/dev/serial/by-id -v /run/udev:/run/udev:ro -w /var/mbed --privilaged ${TARGET_IMAGE}
