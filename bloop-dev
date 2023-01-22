@@ -1,20 +1,30 @@
 #!/bin/bash
 VERSION=mbed-os-6.15.1-latest
 MBED_OS_IMAGE=ghcr.io/armmbed/mbed-os-env:${VERSION}
-UPSTREAM_IMAGE=MBED_OS_IMAGE
 CONTAINER_HOSTNAME=bloop-dev
-DEV_CONTAINER_NAME=bloop-dev-$(git rev-parse --short=7 HEAD)
+PROD_IMAGE_NAME=bloop-mbed
+DEV_IMAGE_NAME=bloop-dev-$(git rev-parse --short=7 HEAD)
 DOCKER_BUILD_ARGS="--build-arg UID=$(id -u) --build-arg GID=$(id -g)"
+REGISTRY_DOMAIN=ghcr.io
+REGISTRY_ORG=badgerloop-software
+UPSTREAM_IMAGE=${REGISTRY_DOMAIN}/${REGISTRY_ORG}/${PROD_IMAGE_NAME}:latest
 
 # Help with clean prints
 alias echo='{ set +x; } 2> /dev/null; builtin echo'
 
 function build_image {
-    docker build -t ${DEV_CONTAINER_NAME} ${DOCKER_BUILD_ARGS} .
+    if [[ $? -gt 1  && $1 == "prod" ]]; then
+        echo "Building dev scoped image"
+        BUILD_NAME=${DEV_IMAGE_NAME}
+    else
+        echo "Building PROD scoped image"
+        BUILD_NAME=${REGISTRY_DOMAIN}/${REGISTRY_ORG}/${PROD_IMAGE_NAME}
+    fi
+    docker build -t ${BUILD_NAME} ${DOCKER_BUILD_ARGS} .
 }
 
 function dev_image_exits {
-    return docker image inspect ${DEV_CONTAINER_NAME}
+    return docker image inspect ${DEV_IMAGE_NAME}
 }
 
 
@@ -52,11 +62,20 @@ then
             exit 1
         fi
     fi
-    TARGET_IMAGE=${DEV_CONTAINER_NAME}
+    TARGET_IMAGE=${DEV_IMAGE_NAME}
 elif [[ $1 == "setup-dev" ]]
 then
     build_image
     echo "Image setup sucessfully, run \"$0 dev\" to build local image"
+    exit 0
+elif [[ $1 == "publish" ]]; then
+    echo "Unless you are an admin with a package write token already registered, this command \
+    is not for you..."
+    echo "Don't worry, if this was a mistake, nothing bad will happen"
+    echo "Simply press ctrl+c to exit the prompt"
+    build_image prod
+    docker login ghcr.io
+    docker push ghcr.io/badgerloop-software/${PROD_IMAGE_NAME}:latest
     exit 0
 else
     TARGET_IMAGE=${UPSTREAM_IMAGE}
