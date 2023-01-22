@@ -1,14 +1,28 @@
+#!/bin/bash
 VERSION=mbed-os-6.15.1-latest
 MBED_OS_IMAGE=ghcr.io/armmbed/mbed-os-env:${VERSION}
 CONTAINER_HOSTNAME=bloop-dev
+DEV_CONTAINER_NAME=dev
+DOCKER_BUILD_ARGS="--build-arg UID=$(id -u) --build-arg GID=$(id -g)"
+
+if [[ -z $(command -v docker) ]]; then
+    echo "ERROR: Docker not installed"
+    echo "Install Docker first"
+    # TODO: Add installation link
+    exit 1
+fi
 
 if [[ $1 == "dev" ]]
 then
-    TARGET_IMAGE=dev
+    if [[ $2 == "build" ]]
+    then
+        docker build -t ${DEV_CONTAINER_NAME} ${DOCKER_BUILD_ARGS} .
+    fi
+    TARGET_IMAGE=${DEV_CONTAINER_NAME}
 elif [[ $1 == "setup-dev" ]]
 then
-    docker build -t dev .
-    echo "Image setup sucessfully, run $0 dev to build local image"
+    docker build -t ${DEV_CONTAINER_NAME} ${DOCKER_BUILD_ARGS} .
+    echo "Image setup sucessfully, run \"$0 dev\" to build local image"
     exit 0
 else
     TARGET_IMAGE=${MBED_OS_IMAGE}
@@ -17,5 +31,4 @@ fi
 
 echo "Targeting Image ${TARGET_IMAGE}"
 
-docker run -it -v "$(pwd)":/src -h ${CONTAINER_HOSTNAME} -v /dev/disk/by-id:/dev/disk/by-id -v
-/dev/serial/by-id:/dev/serial/by-id -v /run/udev:/run/udev:ro -w /var/mbed --privilaged ${TARGET_IMAGE}
+docker run -it -v $(pwd):/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}

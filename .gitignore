@@ -4,4 +4,9 @@ projectfiles
 *.py*
 mbed-os
 BUILD
+mbed_config.h
+GettingStarted.html
+out/
+cmake_build/
+__pycache__/
 
