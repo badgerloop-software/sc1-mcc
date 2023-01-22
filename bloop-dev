@@ -13,12 +13,12 @@ UPSTREAM_IMAGE=${REGISTRY_DOMAIN}/${REGISTRY_ORG}/${PROD_IMAGE_NAME}:latest
 alias echo='{ set +x; } 2> /dev/null; builtin echo'
 
 function build_image {
-    if [[ $? -gt 1  && $1 == "prod" ]]; then
-        echo "Building dev scoped image"
-        BUILD_NAME=${DEV_IMAGE_NAME}
-    else
+    if [[ $# -ge 1  && $1 == "prod" ]]; then
         echo "Building PROD scoped image"
         BUILD_NAME=${REGISTRY_DOMAIN}/${REGISTRY_ORG}/${PROD_IMAGE_NAME}
+    else
+        echo "Building dev scoped image"
+        BUILD_NAME=${DEV_IMAGE_NAME}
     fi
     docker build -t ${BUILD_NAME} ${DOCKER_BUILD_ARGS} .
 }
@@ -42,7 +42,9 @@ if [[ -z $(command -v docker) ]]; then
     echo "======================================================================"
     echo "ERROR: Docker not installed"
     echo "Install Docker first"
-    echo "https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers"
+    echo "WSL: https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers"
+    echo "Linux: https://docs.docker.com/engine/install/ubuntu/"
+    echo "Mac: https://docs.docker.com/desktop/install/mac-install/"
     echo "======================================================================"
     exit 1
 fi
@@ -74,8 +76,22 @@ elif [[ $1 == "publish" ]]; then
     echo "Don't worry, if this was a mistake, nothing bad will happen"
     echo "Simply press ctrl+c to exit the prompt"
     build_image prod
-    docker login ghcr.io
-    docker push ghcr.io/badgerloop-software/${PROD_IMAGE_NAME}:latest
+    if ! docker login ghcr.io ; then
+        echo "=================================================================================================="
+        echo "ERROR: Failed to login to registry"
+        echo "Make sure your PAT is correct and authorized by a GitHub admin"
+        echo "If you are not a GitHub admin but are supposed to push, contact a GitHub Admin to approve your PAT"
+        echo "=================================================================================================="
+        exit 1
+    fi
+    docker push ghcr.io/${REGISTRY_ORG}/${PROD_IMAGE_NAME}:latest 
+    exit 0
+elif [[ $1 == "-h" ]]; then
+    echo "Badgerloop MBed Development Platform"
+    echo "$0 <no_args>          # Loads production image and launches terminal"
+    echo "$0 [setup-dev]        # Builds development image for local docker development"
+    echo "$0 [dev | dev build]  # Loads development image and launches terminal"
+    echo "$0 [publish]          # Publishes local dev image to the ghcr for production use [admin credentials required]"
     exit 0
 else
     TARGET_IMAGE=${UPSTREAM_IMAGE}
@@ -84,5 +100,5 @@ fi
 
 echo "Targeting Image ${TARGET_IMAGE}"
 
-docker run -it --privileged -v /dev:/dev -v /run/udev:/run/udev:ro -v $(pwd):/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
+docker run -it --rm --privileged -v /dev:/dev -v /run/udev:/run/udev:ro -v $(pwd):/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
 
