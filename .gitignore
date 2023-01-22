@@ -9,4 +9,5 @@ GettingStarted.html
 out/
 cmake_build/
 __pycache__/
+CmakeLists.txt
 

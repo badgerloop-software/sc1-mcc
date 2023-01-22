@@ -1,34 +1,69 @@
 #!/bin/bash
 VERSION=mbed-os-6.15.1-latest
 MBED_OS_IMAGE=ghcr.io/armmbed/mbed-os-env:${VERSION}
+UPSTREAM_IMAGE=MBED_OS_IMAGE
 CONTAINER_HOSTNAME=bloop-dev
-DEV_CONTAINER_NAME=dev
+DEV_CONTAINER_NAME=bloop-dev-$(git rev-parse --short=7 HEAD)
 DOCKER_BUILD_ARGS="--build-arg UID=$(id -u) --build-arg GID=$(id -g)"
 
+# Help with clean prints
+alias echo='{ set +x; } 2> /dev/null; builtin echo'
+
+function build_image {
+    docker build -t ${DEV_CONTAINER_NAME} ${DOCKER_BUILD_ARGS} .
+}
+
+function dev_image_exits {
+    return docker image inspect ${DEV_CONTAINER_NAME}
+}
+
+
+echo "  ____  _                     _____             "
+echo " |  _ \| |                   |  __ \            "
+echo " | |_) | | ___   ___  _ __   | |  | | _____   __"
+echo " |  _ <| |/ _ \ / _ \| '_ \  | |  | |/ _ \ \ / /"
+echo " | |_) | | (_) | (_) | |_) | | |__| |  __/\ V / "
+echo " |____/|_|\___/ \___/| .__/  |_____/ \___| \_/  "
+echo "                     | |                        "
+echo "                     |_|                        "
+echo "Run $0 -h to print help"
+
 if [[ -z $(command -v docker) ]]; then
+    echo "======================================================================"
     echo "ERROR: Docker not installed"
     echo "Install Docker first"
-    # TODO: Add installation link
+    echo "https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers"
+    echo "======================================================================"
     exit 1
 fi
+
 
 if [[ $1 == "dev" ]]
 then
     if [[ $2 == "build" ]]
     then
-        docker build -t ${DEV_CONTAINER_NAME} ${DOCKER_BUILD_ARGS} .
+        build_image
+    else
+        if [[ dev_image_exists ]]; then
+            echo "====================================================="
+            echo "ERROR: Dev image does not exist locally"
+            echo "Run $0 setup-dev or $0 dev build to build local image"
+            echo "====================================================="
+            exit 1
+        fi
     fi
     TARGET_IMAGE=${DEV_CONTAINER_NAME}
 elif [[ $1 == "setup-dev" ]]
 then
-    docker build -t ${DEV_CONTAINER_NAME} ${DOCKER_BUILD_ARGS} .
+    build_image
     echo "Image setup sucessfully, run \"$0 dev\" to build local image"
     exit 0
 else
-    TARGET_IMAGE=${MBED_OS_IMAGE}
+    TARGET_IMAGE=${UPSTREAM_IMAGE}
     docker pull ${TARGET_IMAGE}
 fi
 
 echo "Targeting Image ${TARGET_IMAGE}"
 
-docker run -it -v $(pwd):/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
+docker run -it --privileged -v /dev:/dev -v /run/udev:/run/udev:ro -v $(pwd):/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
+

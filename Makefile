@@ -10,10 +10,11 @@ MBED_BUILD_FILES= mbed-os CMakeLists.txt
 compile: $(MBED_BUILD_FILES)
 	mbed-tools compile -t $(TOOLCHAIN) -m $(TARGET) -b $(PROFILE)
 	make copy-out
+	echo "Done building ${PROJECT}"
 
 copy-out:
 	mkdir -p $(OUTDIR)
-	cp cmake_build/$(TARGET)/$(PROFILE)/$(TOOLCHAIN)/$(PROJECT) $(OUTDIR)/$(TARGET)_$(PROFILE).bin
+	cp cmake_build/$(TARGET)/$(PROFILE)/$(TOOLCHAIN)/src $(OUTDIR)/$(TARGET)_$(PROFILE).bin
 
 mbed-os:
 	echo "Installing MBedOS... This may take a while"
