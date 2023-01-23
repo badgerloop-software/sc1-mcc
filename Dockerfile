@@ -13,6 +13,9 @@ RUN mkdir /src /bloop-dev
 
 RUN chown -R bloop-hacker:bloop-hacker /src
 
+RUN mbed config root /src --global
+
 USER $UNAME
 
 WORKDIR /src
+

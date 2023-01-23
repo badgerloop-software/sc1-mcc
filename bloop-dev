@@ -9,6 +9,9 @@ REGISTRY_DOMAIN=ghcr.io
 REGISTRY_ORG=badgerloop-software
 UPSTREAM_IMAGE=${REGISTRY_DOMAIN}/${REGISTRY_ORG}/${PROD_IMAGE_NAME}:latest
 
+# HW Stuff
+NUCLEO_MOUNTPOINT=/mnt/nucleo
+
 # Help with clean prints
 alias echo='{ set +x; } 2> /dev/null; builtin echo'
 
@@ -25,6 +28,12 @@ function build_image {
 
 function dev_image_exits {
     return docker image inspect ${DEV_IMAGE_NAME}
+}
+
+function mount_nucleo {
+    echo "Mounting Nucleo"
+    echo "Requiring sudo access... enter sudo password"
+    sudo mkdir ${NUCLEO_MOUNTPOINT}
 }
 
 
@@ -49,6 +58,8 @@ if [[ -z $(command -v docker) ]]; then
     exit 1
 fi
 
+if [[ 
+
 
 if [[ $1 == "dev" ]]
 then
@@ -56,7 +67,7 @@ then
     then
         build_image
     else
-        if [[ dev_image_exists ]]; then
+        if [[ ! dev_image_exists ]]; then
             echo "====================================================="
             echo "ERROR: Dev image does not exist locally"
             echo "Run $0 setup-dev or $0 dev build to build local image"
@@ -84,7 +95,7 @@ elif [[ $1 == "publish" ]]; then
         echo "=================================================================================================="
         exit 1
     fi
-    docker push ghcr.io/${REGISTRY_ORG}/${PROD_IMAGE_NAME}:latest 
+    docker push ghcr.io/${REGISTRY_ORG}/${PROD_IMAGE_NAME}:latest
     exit 0
 elif [[ $1 == "-h" ]]; then
     echo "Badgerloop MBed Development Platform"
