@@ -1,4 +1,12 @@
 #!/bin/bash
+# bloop-dev Stuff
+USER_HOME_DIR=$(eval echo ~$USER)
+PRJ_SRC=$(cd -- "$(dirname -- $0 )" &> /dev/null && pwd)
+IS_WSL=$(uname -r | grep -i microsoft)
+IS_WSL2=$(uname -r | grep WSL2)
+COFNIG_FILE="${USER_HOME_DIR}/.bloop-dev-config"
+
+# Docker Stuff
 VERSION=mbed-os-6.15.1-latest
 MBED_OS_IMAGE=ghcr.io/armmbed/mbed-os-env:${VERSION}
 CONTAINER_HOSTNAME=bloop-dev
@@ -10,8 +18,11 @@ REGISTRY_ORG=badgerloop-software
 UPSTREAM_IMAGE=${REGISTRY_DOMAIN}/${REGISTRY_ORG}/${PROD_IMAGE_NAME}:latest
 TARGET_IMAGE=${UPSTREAM_IMAGE} # Default - may change below
 
+
 # HW Stuff
-NUCLEO_MOUNTPOINT=/mnt/nucleo
+NUCLEO_MOUNTPOINT="/mnt/nucleo"
+NUCLEO_MOUNT_ARGS=""
+STM_VID="0483"
 
 # Help with clean prints
 alias echo='{ set +x; } 2> /dev/null; builtin echo'
@@ -34,17 +45,36 @@ dev_image_exists()
 }
 
 function mount_nucleo {
-    echo "Mounting Nucleo"
-    echo "Requiring sudo access... enter sudo password"
-    sudo mkdir ${NUCLEO_MOUNTPOINT}
-}
+	if [[ $IS_WSL ]]; then
+		echo "WSL Detected"
+		if [[ ! $IS_WSL2 ]]; then # WSL1
+			echo "WSL1 detected. Mounting Nucleo requires WSL2"
+			echo "Guess you're gonna have to use mbed studio... Sorry :("
+			exit 1
+		fi
+		# WSL2
+		echo "WSL2 Doubly Detected"
+		read -p "Plug in Nucleo and enter the drive letter it is mounted to (i.e 'H'): " drive_letter
+		echo "Mounting Nucleo at drive letter ${drive_letter} to ${NUCLEO_MOUNTPOINT}"
+		sudo mkdir -p ${NUCLEO_MOUNTPOINT}
+		sudo mount -t drvfs ${drive_letter}: ${NUCLEO_MOUNTPOINT}
+		NUCLEO_MOUNT_ARGS="-v ${NUCLEO_MOUNTPOINT}:${NUCLEO_MOUNTPOINT} -v /dev:/dev"
+		git config --file ${COFNIG_FILE} --get device.wslport
+		if [ $? -ne 0 ]; then
+			echo "No WSL port found in config file. Please enter the port number that the Nucleo is connected to (i.e. 'COM3' -> '3')"
+			python3 ${PRJ_SRC}/bloop-dev-tools/create_config.py
+		fi
+		NUCLEO_WSL_PORT=$(git config --file ${COFNIG_FILE} --get device.wslport)
+		NUCLEO_MOUNT_ARGS+=" -v ${NUCLEO_WSL_PORT}:/dev/ttyACM0"
 
-die()
-{
-	local _ret="${2:-1}"
-	test "${_PRINT_HELP:-no}" = yes && print_help >&2
-	echo "$1" >&2
-	exit "${_ret}"
+	elif [[ $OSTYPE == "darwin"* ]]; then # MacOS
+		echo "MacOS Detected"
+		echo "Not yet supported"
+		exit 1
+	elif [[ $OSTYPE == "linux-gnu"* ]]; then # Linux
+		echo "Linux Detected"
+		NUCLEO_MOUNT_ARGS="-v /dev/disk/by-id:/dev/disk/by-id -v /dev/serial/by-id:/dev/serial/by-id -v /run/udev:/run/udev:ro"
+	fi
 }
 
 
@@ -194,13 +224,20 @@ if [[ -z $(command -v docker) ]]; then
     exit 1
 fi
 
+if [[ -z $(command -v python) ]]; then
+    echo "ERROR: Python not installed"
+    echo "Installing python first"
+    echo "Requiring Sudo access"
+    sudo apt-get update && sudo apt-get install python3.6
+    echo "Re-run bloop dev"
+    exit 1
+fi
+
 
 if [ ${_arg_device_mount} == "on" ]; then
 	# Mount the device here
 	echo "Mounting device"
-	if [ ! -d ${NUCLEO_MOUNTPOINT} ]; then
-		echo "Nucleo not mounted"
-	fi
+	mount_nucleo
 fi
 
 if [ ${_arg_build} == "on" ]; then
@@ -247,5 +284,4 @@ if [[ ${_arg_development_image} == "off" ]]; then
     docker pull ${TARGET_IMAGE}
 fi
 
-docker run -it --rm --privileged -v /dev:/dev -v /run/udev:/run/udev:ro -v $(pwd):/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
-
+docker run -it --rm --privileged ${NUCLEO_MOUNT_ARGS} -v /run/udev:/run/udev:ro -v $(pwd):/src -h ${CONTAINER_HOSTNAME} ${TARGET_IMAGE}
