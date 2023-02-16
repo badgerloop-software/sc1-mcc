@@ -1,0 +1,75 @@
+#include "mbed.h"
+
+CAN canBus(PD_0, PD_1);
+uint16_t curGPIO = 0;
+float curRPM = 0;
+float curAccel = 0;
+float curBrake = 0;
+
+void printTable() {
+  uint16_t gpio = curGPIO;
+  float rpm = curRPM;
+  float accel = curAccel;
+  float brake = curBrake;
+  // Wipe screen
+  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
+  // Table printout
+  printf("  Signal Name  |  Value\n");
+  printf("  RPM          |  %4.2f\n", rpm);
+  printf("  Accel V      |  %4.2f\n", accel);
+  printf("  Brake V      |  %4.2f\n", brake);
+  printf("  Power        |  %s\n", (((gpio >> 0) & 0x1) ? "On" : "Off"));
+  printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Forward" : "Reverse"));  
+  printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "On" : "Off"));
+  printf("  Eco          |  %s\n", (((gpio >> 3) & 0x1) ? "Eco" : "Sport"));
+  printf("  Crz Enable   |  %s\n", (((gpio >> 4) & 0x1) ? "On" : "Off"));
+  printf("  Crz Mode     |  %s\n", (((gpio >> 5) & 0x1) ? "B" : "A"));
+  printf("  MC Status    |  %s\n", (((gpio >> 6) & 0x1) ? "Error" : ""));
+}
+
+// Monitor CAN Bus for messages from the MCC
+// Update current on screen values on arrival
+int main() {
+
+  // Initialize bus
+  canBus.frequency(115200);
+  Ticker t;
+  t.attach(printTable, 3s);
+
+
+  // Poll forever, updating printout on new data
+  CANMessage msg;
+
+  while (1) {
+
+    // Check if from MCC
+    if(canBus.read(msg)) {
+        if (msg.id & 0x200) {
+            switch (msg.id & 0x7) {
+                case 0:
+                    curRPM = *(float*)msg.data;
+                    break;
+                case 1:
+                    curGPIO = *(uint16_t*)msg.data;
+                    break;
+                case 2:
+                    curAccel = *(float*)msg.data;
+                    break;
+                case 3:
+                    curBrake = *(float*)msg.data;
+                    break;
+                default:
+                    break;
+            }
+        }
+        printf("Got message id: %x\n", msg.id);
+    }
+    
+    if (canBus.tderror() || canBus.rderror()) {
+        canBus.reset();
+    } 
+  }
+
+  return 0;
+}
