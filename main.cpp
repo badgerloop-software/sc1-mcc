@@ -8,8 +8,8 @@
 int main()
 {
     // Initializes devices
-    initGPIO(100ms, 100ms);
-    initAnalog(100ms);
+    initGPIO(1s, 1s);
+    initAnalog(1s);
     initCAN(125000);
 
     // Enter send loop
