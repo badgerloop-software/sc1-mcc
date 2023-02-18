@@ -27,10 +27,10 @@
 
 #define MCC_OFFSET  200 // CAN Address offset for MCC board
 #define TOTAL_SIG   4   // Total # unique CAN signals from this board
-#define RPM_SLOT    0
-#define GPIO_SLOT   1
-#define ACC_SLOT    2
-#define BRK_SLOT    3
+#define RPM_SLOT    1 << 0
+#define GPIO_SLOT   1 << 1
+#define ACC_SLOT    1 << 2
+#define BRK_SLOT    1 << 3
 
 extern EventFlags queueFlags;
 

@@ -43,30 +43,39 @@ void printTable(uint16_t gpio, float rpm, float accel,
 /// Sends CAN message from queue whenever entry present
 //  Loops forever, main thread will transform into this
 void CANSend() {
-    int curMessage = 0;
+    uint32_t curMessage = 0;
 
     // Create message templates
-    uint16_t canIDs[TOTAL_SIG] = {200, 201, 202, 203};
+    uint32_t canIDs[TOTAL_SIG] = {0x200, 0x201, 0x202, 0x203};
     void* dataPtrs[TOTAL_SIG] = {&curRPM, &curGPIO, &curAcc, &curBrk};
     uint8_t lengths[TOTAL_SIG] = {4, 2, 4, 4};
 
     while (1) {
         // Wait for a message. Signaled by any bit in 32 bit flag being set
         // Flag automatically cleared
-        curMessage = queueFlags.wait_any(0xFFFFFFFF);
-
+        // Limit for 10ms for canbus error checking, should later match update rate?
+        curMessage = queueFlags.wait_any_for(0xFFFFFFFF >> (8 - TOTAL_SIG), 10ms);
+        if (canBus.tderror() || canBus.rderror()) {
+            canBus.reset();
+        }
 
         #if TEST_MODE
         printTable(curGPIO, curRPM, curAcc, curBrk);
-        char mes = 1;
-        canBus.write(CANMessage(200, &mes, 1));
-        wait_us(2500000);
-        #else
-        // Send it
-        canBus.write(CANMessage(canIDs[curMessage], (char*)dataPtrs[curMessage], lengths[curMessage]));
         #endif
 
-        
+        // Check if flag was from updated reading and not timeout
+        if (curMessage < (0x1 << TOTAL_SIG)) {
+
+            // Check which readings are new, send those
+            for (int i = 0; i < TOTAL_SIG; i++) {
+                if (curMessage & (0x1 << i)) {
+                    if (!canBus.write(CANMessage(canIDs[i], (char*)dataPtrs[i], lengths[i]))) {
+                        printf("Failed to send message\n");
+                    }
+                }
+            }
+        }
+        curMessage = 0;
     }
 }
 
