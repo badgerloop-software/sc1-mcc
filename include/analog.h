@@ -3,6 +3,7 @@
 
 #include "mbed.h"
 #include "can.h"
+#include "gpio.h" // For state machine 
 
 ///////////////////////////////////////////////////////////////////////
 /// SEE README IN "include" FOR HIGHER LEVEL DETAILS

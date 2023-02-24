@@ -21,7 +21,25 @@ void analogUpdate() {
     curAcc = ACC_SIG.read_voltage();
     curBrk = BRK_SIG.read_voltage();
 
-    // Pass through acceleration from pedal to motor
+    // Determine acceleration 
+    switch (curState) {
+        case 0:
+            ACC_OUT.write(0);
+            break;
+        case 1:
+        case 2:
+        case 3:
+            ACC_OUT.write(curAcc);
+            break;
+        case 4:
+            // PID CONTROL SIGNAL GOES HERE
+            ACC_OUT.write(0);
+            break;
+        default:
+            ACC_OUT.write(0);
+            break;
+    }
+
     ACC_OUT.write(ACC_SIG.read());
 
     // Send new values over CAN
