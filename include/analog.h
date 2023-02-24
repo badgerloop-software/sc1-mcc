@@ -3,7 +3,6 @@
 
 #include "mbed.h"
 #include "can.h"
-#include "gpio.h" // For state machine 
 
 ///////////////////////////////////////////////////////////////////////
 /// SEE README IN "include" FOR HIGHER LEVEL DETAILS
@@ -15,6 +14,8 @@
 // Brake In    | Input       | A1     | 4           | Input | Pin?
 // Accel Out   | Output      | A4     | n/a         | Output| Accel In/CrzCntrl
 ///////////////////////////////////////////////////////////////////////
+
+extern uint8_t curState;
 
 /// Initializes analog update functions at specified period
 //  Updated values will be automatically added to can output queue

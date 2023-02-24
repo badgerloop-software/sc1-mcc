@@ -109,9 +109,9 @@ void updateGPIO() {
                 curState = 0;
             } else if (curRPM < 5) {
                 curState = 1;
-            }
+            } // TODO: CRZ CNTRL Transition
             break;
-        case 3:
+        case 3: // TODO: CRZ CNTRL
             break;
         default: // BAD, SOMEHOW ENTERED UNKNOWN STATE, SHUTOFF
             curState = 0;

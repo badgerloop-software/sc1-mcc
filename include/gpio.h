@@ -22,8 +22,6 @@
 // NA          | Speed Pulse | D1       | Input     | Pin
 ///////////////////////////////////////////////////////////////////////
 
-// SEE README FOR STATE MACHINE
-extern uint8_t curState;
 
 /// Initializes all GPIO interrupts
 //  Initializes functions which update GPIO and RPM at specified interval
