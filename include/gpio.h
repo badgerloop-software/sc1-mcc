@@ -9,19 +9,21 @@
 /// SEE README IN "include" FOR HIGHER LEVEL DETAILS
 ///////////////////////////////////////////////////////////////////////
 // GPIO Bitmap and Pins
-// ---------------------------------
-// Bit         | Name        | Pin(s)
-// 0           | Power       | D0
-// 1           | Direction   | D13
-// 2           | Brake       | D12
-// 3           | Eco         | D9
-// 4           | Crz Enable  | D5/D6
-// 5           | Crz Mode    | D3/D4
-// 6           | MC Status   | D11
-// 7-15        | Unused      |  
-// NA          | Speed Pulse | D1
+// -----------------------------------------
+// Bit         | Name        | Pin(s)   | MCC       | Source
+// 0           | Power       | D0       | Output    | CAN?
+// 1           | Direction   | D13      | Output    | CAN?
+// 2           | Brk_Status  | D12      | N/A       | Pin
+// 3           | Eco         | D9       | Output    | CAN?
+// 4           | Crz Enable  | D5/D6    | N/A       | Pin
+// 5           | Crz Mode    | D3/D4    | N/A       | Pin
+// 6           | MC Status   | D11      | Input     | Pin?
+// 7-15        | Unused      |          | N/A       | N/A
+// NA          | Speed Pulse | D1       | Input     | Pin
 ///////////////////////////////////////////////////////////////////////
 
+// SEE README FOR STATE MACHINE
+extern uint8_t curState;
 
 /// Initializes all GPIO interrupts
 //  Initializes functions which update GPIO and RPM at specified interval

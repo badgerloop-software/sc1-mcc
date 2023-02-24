@@ -40,7 +40,7 @@ To get started with Mbed Studio follow this quick guide
 | PA11    | Dig   | CANRX   |         |       | AREF  |
 | PB5     | Dig   | MC Stat |         |       | 3V3   |
 | PB4     | Dig   | Brake   | Dir     | Dig   | PB3   |
-
+Note: Power (Main Telem) and Direction (FR_Telem) have been moved off of unusable pins. Will need to be jumpered
 
 ## CAN IDs
 CAN Offset is 0x200 for this board

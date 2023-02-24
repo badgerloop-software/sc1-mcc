@@ -9,10 +9,10 @@
 ///////////////////////////////////////////////////////////////////////
 // Current Analog Pins
 // ---------------------------------
-// Name        | Direction   | Pin    | CAN Offset
-// Accel In    | Input       | A0     | 3
-// Brake In    | Input       | A1     | 4
-// Accel Out   | Output      | A4     | n/a
+// Name        | Direction   | Pin    | CAN Offset  | MCC   | Source
+// Accel In    | Input       | A0     | 3           | Input | Pin
+// Brake In    | Input       | A1     | 4           | Input | Pin?
+// Accel Out   | Output      | A4     | n/a         | Output| Accel In/CrzCntrl
 ///////////////////////////////////////////////////////////////////////
 
 /// Initializes analog update functions at specified period

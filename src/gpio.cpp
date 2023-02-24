@@ -8,31 +8,31 @@ uint16_t curGPIO = 0; // Bitmap
 float curRPM = 0;
 static uint64_t counter = 0;
 static float rpsCalcConstant = 0;
+uint8_t curState = 0;
 
 // Bitmap offsets
-#define POWER_BIT       0
-#define DIRECTON_BIT    1
-#define BRAKE_BIT       2
-#define ECO_BIT         3
-#define CRZ_EN_BIT      4
-#define CRZ_M_BIT       5
-#define MC_STAT_BIT     6
+#define POWER_BIT       0x1 << 0
+#define DIRECTON_BIT    0x1 << 1
+#define BRAKE_BIT       0x1 << 2
+#define ECO_BIT         0x1 << 3
+#define CRZ_EN_BIT      0x1 << 4
+#define CRZ_M_BIT       0x1 << 5
+#define MC_STAT_BIT     0x1 << 6
 
 // Initialize GPIO pins
-InterruptIn Power(D0);
+DigitalOut Power(D0);       // 0 Off, 1 On
 InterruptIn spdPulse(D1);
 InterruptIn CrzA(D3);
 InterruptIn CrzB(D4);
 InterruptIn CrzSet(D5);
 InterruptIn CrzRst(D6);
-InterruptIn Eco(D9);
+DigitalOut Eco(D9);         // 0 Off, 1 On
 InterruptIn MCStatus(D11);
-InterruptIn BrkStatus(D12);
-InterruptIn Direction(D13);
+InterruptIn BrkStatus(D12); // 0 Off, 1 On
+DigitalOut Direction(D13);  // 0 Fwd, 1 Rev
 
 // Timers and Function Tickers
 LowPowerTimer GenGPIODebouce;
-LowPowerTimer BrakeDebounce;
 Ticker RPMTimer;
 Ticker GPIOTimer;
 
@@ -40,11 +40,6 @@ Ticker GPIOTimer;
 /// Clears debounce timer for general GPIO
 void clearGenGPIOTimer() {
     GenGPIODebouce.reset();
-}
-
-/// Clears brake debounce timer
-void clearBrakeTimer() {
-    BrakeDebounce.reset();
 }
 
 /// Increments number of ticks
@@ -58,60 +53,76 @@ void incrTick() {
 void updateGPIO() {
     uint16_t oldGPIO = curGPIO;
 
-    // Update if signals have been stable
-    if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() > 50) {
-        if (BrkStatus.read()) {
-            curGPIO |= 1UL << BRAKE_BIT;
-        } else {
-            curGPIO &= ~(1UL << BRAKE_BIT);
-        }
-    }
-
+    // Update readings if signals have been stable
     if (duration_cast<milliseconds>(GenGPIODebouce.elapsed_time()).count() > 50) {
-        if (Power.read()) {
-            curGPIO |= 1UL << POWER_BIT;
+        if (BrkStatus.read()) {
+            curGPIO |= BRAKE_BIT;
         } else {
-            curGPIO &= ~(1UL << POWER_BIT);
-        }
-
-        if (Direction.read()) {
-            curGPIO |= 1UL << DIRECTON_BIT;
-        } else {
-            curGPIO &= ~(1UL << DIRECTON_BIT);
-        }
-
-        if (Eco.read()) {
-            curGPIO |= 1UL << ECO_BIT;
-        } else {
-            curGPIO &= ~(1UL << ECO_BIT);
+            curGPIO &= ~(BRAKE_BIT);
         }
 
         // Cruise off takes priority over on
         if (CrzRst.read()) {
-            curGPIO &= ~(1UL << CRZ_EN_BIT);
+            curGPIO &= ~(CRZ_EN_BIT);
         } else if (CrzSet.read()) {
-            curGPIO |= 1UL << CRZ_EN_BIT;
+            curGPIO |= CRZ_EN_BIT;
         }
 
         // Cruise Mode A priority over B
         if (CrzA.read()) {
-            curGPIO &= ~(1UL << CRZ_M_BIT);
+            curGPIO &= ~(CRZ_M_BIT);
         } else if (CrzB.read()) {
-            curGPIO |= 1UL << CRZ_M_BIT;
+            curGPIO |= CRZ_M_BIT;
         }
 
         if (MCStatus.read()) {
-            curGPIO |= 1UL << MC_STAT_BIT;
+            curGPIO |= MC_STAT_BIT;
         } else {
-            curGPIO &= ~(1UL << MC_STAT_BIT);
+            curGPIO &= ~(MC_STAT_BIT);
         }
     }
+
+    Eco.write(curGPIO & ECO_BIT);
+    // State machine
+    switch (curState) {
+        case 0:
+            if (curGPIO & POWER_BIT) {
+                curState = 1;
+            }
+            break;
+        case 1:
+            if (!(curGPIO & POWER_BIT)) {
+                curState = 0;
+            } else if (curRPM < 5) {
+                Direction.write(curGPIO & DIRECTON_BIT);
+                
+            } else {
+                if (Direction.read() == 1) {
+                    curState = 3;
+                } else {
+                    curState = 2;
+                }
+            }
+            break;
+        case 2:
+            if (!(curGPIO & POWER_BIT)) {
+                curState = 0;
+            } else if (curRPM < 5) {
+                curState = 1;
+            }
+            break;
+        case 3:
+            break;
+        default: // BAD, SOMEHOW ENTERED UNKNOWN STATE, SHUTOFF
+            curState = 0;
+            break;
+    }
+    
 
     // If change, send CAN. Also send if stale in case of drop
     if (oldGPIO != curGPIO || duration_cast<seconds>(GenGPIODebouce.elapsed_time()).count() > 30) {
         queueFlags.set(GPIO_SLOT);
         // Reset timers to avoid overflow
-        BrakeDebounce.reset();
         GenGPIODebouce.reset();
     }    
 }
@@ -119,7 +130,7 @@ void updateGPIO() {
 
 /// Updates the RPM at a fixed interval
 //  Automatically triggers CAN message
-void updateRPS() {
+void updateRPM() {
     // Update speed calculation
     curRPM = (float)counter * rpsCalcConstant;
     counter = 0;
@@ -140,28 +151,26 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
     CrzSet.fall(clearGenGPIOTimer);
     CrzRst.rise(clearGenGPIOTimer);
     CrzRst.fall(clearGenGPIOTimer);
-    Power.rise(clearGenGPIOTimer);
-    Power.fall(clearGenGPIOTimer);
-    Direction.rise(clearGenGPIOTimer);
-    Direction.fall(clearGenGPIOTimer);
-    Eco.rise(clearGenGPIOTimer);
-    Eco.fall(clearGenGPIOTimer);
     MCStatus.rise(clearGenGPIOTimer);
     MCStatus.fall(clearGenGPIOTimer);
-    BrkStatus.rise(clearBrakeTimer);
-    BrkStatus.fall(clearBrakeTimer);
+    BrkStatus.rise(clearGenGPIOTimer);
+    BrkStatus.fall(clearGenGPIOTimer);
+
+    // Initialize Outputs to motor power off, eco off, forward
+    Power.write(0);
+    Eco.write(0);
+    Direction.write(0);
 
     // Set constant for conversion from motor ticks to rpm 
     // Divide by 48 to get rotation, divide by sampling interval to get per second, mult by 60 for min
     rpsCalcConstant = (double)1250 / rpmCalcPeriodMS.count();
 
     // Start updating functions
-    RPMTimer.attach(updateRPS, rpmCalcPeriodMS);
+    RPMTimer.attach(updateRPM, rpmCalcPeriodMS);
     GPIOTimer.attach(updateGPIO, pollPeriodMS);
 
     // Start timers
     GenGPIODebouce.start();
-    BrakeDebounce.start();
 
     return 0;
 }
@@ -178,12 +187,6 @@ int disableGPIO() {
     CrzSet.fall(NULL);
     CrzRst.rise(NULL);
     CrzRst.fall(NULL);
-    Power.rise(NULL);
-    Power.fall(NULL);
-    Direction.rise(NULL);
-    Direction.fall(NULL);
-    Eco.rise(NULL);
-    Eco.fall(NULL);
     MCStatus.rise(NULL);
     MCStatus.fall(NULL);
     BrkStatus.rise(NULL);
@@ -193,9 +196,14 @@ int disableGPIO() {
     RPMTimer.detach();
     GPIOTimer.detach();
 
+    // Set outputs to off
+    curState = 0;
+    Eco.write(0);
+    Direction.write(0);
+    Power.write(0);
+
     // Stop timers
     GenGPIODebouce.stop();
-    BrakeDebounce.stop();
 
     return 0;
 }
