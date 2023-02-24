@@ -54,7 +54,7 @@ void CANSend() {
         // Wait for a message. Signaled by any bit in 32 bit flag being set
         // Flag automatically cleared
         // Limit for 10ms for canbus error checking, should later match update rate?
-        curMessage = queueFlags.wait_any_for(0xFFFFFFFF >> (8 - TOTAL_SIG), 10ms);
+        curMessage = queueFlags.wait_any_for(0xFFFFFFFF >> (32 - TOTAL_SIG), 10ms);
         if (canBus.tderror() || canBus.rderror()) {
             canBus.reset();
         }
