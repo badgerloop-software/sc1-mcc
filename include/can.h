@@ -39,7 +39,7 @@ extern float curAcc;
 extern float curBrk;
 extern float curRPM;
 extern uint16_t curGPIO;
-
+extern uint8_t curState;
 
 /// Initializes output queue id's
 //  Data fields and sizes of all signals initialized in signal files

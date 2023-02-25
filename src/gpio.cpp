@@ -88,6 +88,9 @@ void updateGPIO() {
         case 0:
             if (curGPIO & POWER_BIT) {
                 curState = 1;
+                Power.write(1);
+            } else {
+                Power.write(0);
             }
             break;
         case 1:
@@ -95,7 +98,6 @@ void updateGPIO() {
                 curState = 0;
             } else if (curRPM < 5) {
                 Direction.write(curGPIO & DIRECTON_BIT);
-                
             } else {
                 if (Direction.read() == 1) {
                     curState = 3;

@@ -18,7 +18,7 @@ Ticker ACC_TIMER;
 //  Automatically triggers CAN message
 void analogUpdate() {
     // Update internal values
-    curAcc = ACC_SIG.read_voltage();
+    curAcc = ACC_SIG.read();
     curBrk = BRK_SIG.read_voltage();
 
     // Determine acceleration 
@@ -51,7 +51,7 @@ int initAnalog(std::chrono::milliseconds pollRateMS) {
     ACC_SIG.set_reference_voltage(3.3);
     BRK_SIG.set_reference_voltage(3.3);
 
-    // Start pdating function
+    // Start updating function
     ACC_TIMER.attach(analogUpdate, pollRateMS);
 
     return 0;
