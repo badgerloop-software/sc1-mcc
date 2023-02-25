@@ -1,5 +1,6 @@
 #include "analog.h"
 
+#define TEST_MODE 1
 
 // Variables
 float curAcc = 0;
@@ -18,7 +19,11 @@ Ticker ACC_TIMER;
 //  Automatically triggers CAN message
 void analogUpdate() {
     // Update internal values
+    #if TEST_MODE
+    curAcc = 3.3 * ACC_OUT;
+    #else
     curAcc = ACC_SIG.read();
+    #endif
     curBrk = BRK_SIG.read_voltage();
 
     // Determine acceleration 

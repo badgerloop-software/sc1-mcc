@@ -26,7 +26,7 @@ static BufferedSerial pc(USBTX, USBRX);
 void printTable(uint16_t gpio, float rpm, float accel,
                 float brake) {
   // Wipe screen
-  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  printf("\e[1;1H\e[2J");
 
   // Table printout
   printf("  Signal Name  |  Value\n");
