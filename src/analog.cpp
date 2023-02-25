@@ -1,6 +1,6 @@
 #include "analog.h"
 
-#define TEST_MODE 1
+#define TEST_MODE 0
 
 // Variables
 float curAcc = 0;
@@ -28,9 +28,7 @@ void analogUpdate() {
     switch (curState) {
         case 0:
             ACC_OUT.write(0);
-            #if TEST_MODE
             curAcc = 0;
-            #endif
             break;
         case 1:
         case 2:
@@ -52,21 +50,17 @@ void analogUpdate() {
 }
 
 
-int initAnalog(std::chrono::milliseconds pollRateMS) {
+void initAnalog(std::chrono::milliseconds pollRateMS) {
     // Reference for ADC. Should match voltage of AREF pin
     ACC_SIG.set_reference_voltage(3.3);
     BRK_SIG.set_reference_voltage(3.3);
 
     // Start updating function
     ACC_TIMER.attach(analogUpdate, pollRateMS);
-
-    return 0;
 }
 
 
-int disableAnalog() {
+void disableAnalog() {
     // Stop updating function
-    ACC_TIMER.detach();
-
-    return 0;    
+    ACC_TIMER.detach();  
 }

@@ -42,13 +42,13 @@ void clearGenGPIOTimer() {
     GenGPIODebouce.reset();
 }
 
-/// Increments number of ticks
+/// Increments number of ticks to track motor rotation
 void incrTick() {
     counter++;
 }
 
 
-/// Updates the curGPIO at fixed interval
+/// Updates the curGPIO
 //  Automatically triggers CAN message on change
 void updateGPIO() {
     uint16_t oldGPIO = curGPIO;
@@ -68,7 +68,7 @@ void updateGPIO() {
             curGPIO |= CRZ_EN_BIT;
         }
 
-        // Cruise Mode A priority over B
+        // Cruise Mode A has priority over B
         if (CrzA.read()) {
             curGPIO &= ~(CRZ_M_BIT);
         } else if (CrzB.read()) {
@@ -83,7 +83,7 @@ void updateGPIO() {
     }
 
     Eco.write(curGPIO & ECO_BIT);
-    // State machine
+    // State machine, see README in include for details
     switch (curState) {
         case 0:
             if (curGPIO & POWER_BIT) {
@@ -130,7 +130,7 @@ void updateGPIO() {
 }
 
 
-/// Updates the RPM at a fixed interval
+/// Updates the RPM calculation
 //  Automatically triggers CAN message
 void updateRPM() {
     // Update speed calculation
@@ -142,7 +142,7 @@ void updateRPM() {
 }
 
 
-int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds rpmCalcPeriodMS) {
+void initGPIO(milliseconds pollPeriodMS, milliseconds rpmCalcPeriodMS) {
     // Enable interrupts
     spdPulse.rise(incrTick);
     CrzA.rise(clearGenGPIOTimer);
@@ -173,12 +173,10 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds r
 
     // Start timers
     GenGPIODebouce.start();
-
-    return 0;
 }
 
 
-int disableGPIO() {
+void disableGPIO() {
     // Disable interrupts
     spdPulse.rise(NULL);
     CrzA.rise(NULL);
@@ -206,7 +204,5 @@ int disableGPIO() {
 
     // Stop timers
     GenGPIODebouce.stop();
-
-    return 0;
 }
 

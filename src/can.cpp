@@ -1,9 +1,10 @@
 #include "can.h"
 #include "stdio.h"
 
+// Disables CAN. Gives direct console control over outputs. Printout of current signals
 #define TEST_MODE 0
 
-// Variables
+// Signaled for when to send CAN message 
 EventFlags queueFlags;
 
 
@@ -12,17 +13,17 @@ CAN canBus(PA_11, PA_12);
 
 
 /// Initializes CAN on pins and output queue
-//  Returns 0 on success, -1 on failure
-int initCAN(int frequency) {
+void initCAN(int frequency) {
     canBus.frequency(frequency);
-    
-    return 0;
+    // TODO: ADD READ CODE
 }
 
 
 #if TEST_MODE
+// Serial console setup
 static BufferedSerial pc(USBTX, USBRX);
 
+// Print current variables
 void printTable(uint16_t gpio, float rpm, float accel,
                 float brake) {
   // Wipe screen
@@ -37,6 +38,8 @@ void printTable(uint16_t gpio, float rpm, float accel,
   printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Reverse" : "Forward"));  
 }
 
+// Rudimentary frontend to give serial console control over MCC outputs
+// Essentially replaces purpose of inbound CAN messages
 void command_loop() {
     char buf[1];
     
@@ -105,37 +108,38 @@ void command_loop() {
         pc.set_blocking(false);
     }
 }
-
 #endif
+
 
 /// Sends CAN message from queue whenever entry present
 //  Loops forever, main thread will transform into this
 void CANSend() {
+    // Test mode replaces CAN system with serial console
     #if TEST_MODE
     char buf[1] = {0};
     pc.set_blocking(false);
     pc.set_baud(9600);
     pc.set_format(8, BufferedSerial::None, 1);
-
-    #else
-    uint32_t curMessage = 0;
-
-    // Create message templates
-    uint32_t canIDs[TOTAL_SIG] = {0x200, 0x201, 0x202, 0x203};
-    void* dataPtrs[TOTAL_SIG] = {&curRPM, &curGPIO, &curAcc, &curBrk};
-    uint8_t lengths[TOTAL_SIG] = {4, 2, 4, 4};
-    #endif
-
     while (1) {
-        #if TEST_MODE
         printTable(curGPIO, curRPM, curAcc, curBrk);
         command_loop();
         wait_us(1500000);
-        
-        #else
+    }
+
+    // CAN Send system
+    #else
+    uint32_t curMessage = 0;
+
+    // Collection of message metadata
+    uint32_t canIDs[TOTAL_SIG] = {0x200, 0x201, 0x202, 0x203};
+    void* dataPtrs[TOTAL_SIG] = {&curRPM, &curGPIO, &curAcc, &curBrk};
+    uint8_t lengths[TOTAL_SIG] = {4, 2, 4, 4};
+
+    while (1) {
         // Wait for a message. Signaled by any bit in 32 bit flag being set
         // Flag automatically cleared
         // Limit for 10ms for canbus error checking, should later match update rate?
+        // On timeout, all but MSB is set to 1 by function
         curMessage = queueFlags.wait_any_for(0xFFFFFFFF >> (32 - TOTAL_SIG), 10ms);
         if (canBus.tderror() || canBus.rderror()) {
             canBus.reset();
@@ -154,7 +158,7 @@ void CANSend() {
             }
         }
         curMessage = 0;
-        #endif
     }
+    #endif
 }
 

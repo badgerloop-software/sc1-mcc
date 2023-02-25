@@ -44,7 +44,7 @@ extern uint8_t curState;
 /// Initializes output queue id's
 //  Data fields and sizes of all signals initialized in signal files
 //  Returns 0 on success, -1 on failure
-int initCAN(int frequency);
+void initCAN(int frequency);
 
 
 /// Sends CAN message from queue whenever entry present
