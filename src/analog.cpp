@@ -3,8 +3,8 @@
 #define TEST_MODE 1
 
 // Variables
-volatile float curAcc = 0;
-volatile float curBrk = 0;
+float curAcc = 0;
+float curBrk = 0;
 
 // Initialize Analog pins
 AnalogIn ACC_SIG(A0);

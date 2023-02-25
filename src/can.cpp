@@ -1,7 +1,7 @@
 #include "can.h"
 #include "stdio.h"
 
-#define TEST_MODE 1
+#define TEST_MODE 0
 
 // Variables
 EventFlags queueFlags;

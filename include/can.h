@@ -35,11 +35,11 @@
 extern EventFlags queueFlags;
 
 // Current state variables
-extern volatile float curAcc;
-extern volatile float curBrk;
-extern volatile float curRPM;
-extern volatile uint16_t curGPIO;
-extern volatile uint8_t curState;
+extern float curAcc;
+extern float curBrk;
+extern float curRPM;
+extern uint16_t curGPIO;
+extern uint8_t curState;
 
 /// Initializes output queue id's
 //  Data fields and sizes of all signals initialized in signal files

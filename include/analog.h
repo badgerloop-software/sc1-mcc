@@ -15,7 +15,7 @@
 // Accel Out   | Output      | A4     | n/a         | Output| Accel In/CrzCntrl
 ///////////////////////////////////////////////////////////////////////
 
-extern volatile uint8_t curState;
+extern uint8_t curState;
 
 /// Initializes analog update functions at specified period
 //  Updated values will be automatically added to can output queue

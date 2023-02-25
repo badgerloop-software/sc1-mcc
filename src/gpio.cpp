@@ -4,11 +4,11 @@
 using namespace std::chrono;
 
 // Variables 
-volatile uint16_t curGPIO = 0; // Bitmap
-volatile float curRPM = 0;
+uint16_t curGPIO = 0; // Bitmap
+float curRPM = 0;
 static uint64_t counter = 0;
 static float rpsCalcConstant = 0;
-volatile uint8_t curState = 0;
+uint8_t curState = 0;
 
 // Bitmap offsets
 #define POWER_BIT       0x1 << 0
