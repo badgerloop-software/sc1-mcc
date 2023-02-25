@@ -33,14 +33,8 @@ void printTable(uint16_t gpio, float rpm, float accel,
   printf("  Cur State    |  %d\n", curState);
   printf("  RPM          |  %4.2f\n", rpm);
   printf("  Accel V      |  %4.2f\n", accel);
-  printf("  Brake V      |  %4.2f\n", brake);
   printf("  Power        |  %s\n", (((gpio >> 0) & 0x1) ? "On" : "Off"));
-  printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Forward" : "Reverse"));  
-  printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "On" : "Off"));
-  printf("  Eco          |  %s\n", (((gpio >> 3) & 0x1) ? "Eco" : "Sport"));
-  printf("  Crz Enable   |  %s\n", (((gpio >> 4) & 0x1) ? "On" : "Off"));
-  printf("  Crz Mode     |  %s\n", (((gpio >> 5) & 0x1) ? "B" : "A"));
-  printf("  MC Status    |  %s\n", (((gpio >> 6) & 0x1) ? "Error" : ""));
+  printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Reverse" : "Forward"));  
 }
 
 void command_loop() {
@@ -53,13 +47,16 @@ void command_loop() {
         pc.read(buf, 1);
         switch (buf[0]) {
             case 'a':
-                printf("Use u to increase voltage, d to decrease in increments of 0.1V, x to exit. Any other key to see current voltage\n");
+                printf("Use u to increase voltage, d to decrease in increments of 0.1V, x to exit, e for emergency stop. Any other key to see current voltage\n");
                 while (1) {
                     pc.read(buf, 1);
                     if (buf[0] == 'x') {
                         break;
                     }
                     switch (buf[0]) {
+                        case 'e':
+                            curAcc = 0;
+                            break;
                         case 'u':
                             curAcc += 0.1;
                             if (curAcc > 3.3) curAcc = 3.3; // Saturate
@@ -67,8 +64,9 @@ void command_loop() {
                         case 'd':
                             curAcc -= 0.1;
                             if (curAcc < 0) curAcc = 0;
+                            break;
                         default:
-                            printf("%f V\n", 3.3 * curAcc);
+                            printf("%f V\n", curAcc);
                             break;
                     }
                 }

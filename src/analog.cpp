@@ -3,8 +3,8 @@
 #define TEST_MODE 1
 
 // Variables
-float curAcc = 0;
-float curBrk = 0;
+volatile float curAcc = 0;
+volatile float curBrk = 0;
 
 // Initialize Analog pins
 AnalogIn ACC_SIG(A0);
@@ -19,9 +19,7 @@ Ticker ACC_TIMER;
 //  Automatically triggers CAN message
 void analogUpdate() {
     // Update internal values
-    #if TEST_MODE
-    curAcc = 3.3 * ACC_OUT;
-    #else
+    #if !TEST_MODE
     curAcc = ACC_SIG.read();
     #endif
     curBrk = BRK_SIG.read_voltage();
@@ -30,6 +28,9 @@ void analogUpdate() {
     switch (curState) {
         case 0:
             ACC_OUT.write(0);
+            #if TEST_MODE
+            curAcc = 0;
+            #endif
             break;
         case 1:
         case 2:
