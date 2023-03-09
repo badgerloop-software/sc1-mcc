@@ -1,8 +1,8 @@
 # Solar Car 1 Motor Controller Controller
-*Authors: Wilson Guo, Sebastien Criqui, Declan Stanton. \
+*Authors: Wilson Guo, Sebastien Criqui, Declan Stanton, Khiem Vu. \
  Mbed Studio Instructions stolen from pod-embedded-nucleo (Authors: Ezra Boley, Eric Udlis)*
 
-Repository for the Motor Controller Controller board powered by a Nucleo-L432KC. **__Running on Mbed OS v6.15.1__**
+Repository for the Motor Controller Controller board powered by a Nucleo-F303K8. **__Running on Mbed OS v6.15.1__**
 
 ## Getting Started
 
@@ -14,7 +14,7 @@ To get started with Mbed Studio follow this quick guide
 3. Log into Mbed studio with your mbed os Account
 4. Click File -> Import Program, put the git clone URL in the URL field
 5. Install Mbed OS libraries in the bottom libraries tab if needed. Sometimes on first clone an update is needed.
-7. Set the target as the "NUCLEO-L432KC"
+7. Set the target as the "NUCLEO-F303K8"
 8. Enjoy programming your Mbed enabled STM Nucleo
 
 ### To import the repo
@@ -26,7 +26,7 @@ To get started with Mbed Studio follow this quick guide
 | Pin ID  | Type  | Usage   | Usage   | Type  | Pin ID|
 | :---:   | :---: | :---:   | :---:   | :---: | :---: |
 | PA9     | Dig   | Speed   |         |       | VIN   |
-| PA10    | Dig   | Power   |         |       | GND   |
+| PA10    | Dig   |         |         |       | GND   |
 | NRST    |       |         |         |       | NRST  |
 | GND     |       |         |         |       | 5V    |
 | PA12    | Dig   | CANTX   |         | Alg   | PA2   |
@@ -34,12 +34,12 @@ To get started with Mbed Studio follow this quick guide
 | PB7     | Dig   | CrzB    |         | Alg   | PA6   |
 | PB6     | Dig   | Crz Set | Acc Out | Alg   | PA5   |
 | PB1     | Dig   | Crz Rst |         | Alg   | PA4   |
-| D7      | Dig   | NOREAD  |         | Alg   | PA3   |
-| D8      | Dig   | NOREAD  | Brk Sig | Alg   | PA1   |
+| PF0     | Dig   | Power   |         | Alg   | PA3   |
+| PF1     | Dig   | Dir     | Brk Sig | Alg   | PA1   |
 | PA8     | Dig   | Eco     | Acc Sig | Alg   | PA0   |
 | PA11    | Dig   | CANRX   |         |       | AREF  |
 | PB5     | Dig   | MC Stat |         |       | 3V3   |
-| PB4     | Dig   | Brake   | Dir     | Dig   | PB3   |
+| PB4     | Dig   | Brake   |         | Dig   | PB3   |
 
 Note: Power (Main Telem) and Direction (FR_Telem) have been moved off of unusable pins. Will need to be jumpered
 
