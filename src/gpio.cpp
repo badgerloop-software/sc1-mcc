@@ -20,20 +20,20 @@ uint8_t curState = 0;
 #define MC_STAT_BIT     0x1 << 6
 
 // Initialize GPIO pins
-DigitalOut Power(D0);       // 0 Off, 1 On
-InterruptIn spdPulse(D1);
+DigitalOut Power(D7);       // 0 Off, 1 On
+InterruptIn spdPulse(D1);   
 InterruptIn CrzA(D3);
 InterruptIn CrzB(D4);
 InterruptIn CrzSet(D5);
-InterruptIn CrzRst(D6);
+InterruptIn CrzRst(D6); 
 DigitalOut Eco(D9);         // 0 Off, 1 On
 InterruptIn MCStatus(D11);
 InterruptIn BrkStatus(D12); // 0 Off, 1 On
-DigitalOut Direction(D13);  // 0 Fwd, 1 Rev
+DigitalOut Direction(D8);  // 0 Fwd, 1 Rev // incorrect?
 
 // Timers and Function Tickers
-LowPowerTimer GenGPIODebouce;
-Ticker RPMTimer;
+Timer GenGPIODebouce;
+Ticker RPMTimer;    
 Ticker GPIOTimer;
 
 
