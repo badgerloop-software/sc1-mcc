@@ -46,7 +46,7 @@ void command_loop() {
     printf("Press any key to change settings\n");
     if (pc.read(buf, 1) > 0) {
         pc.set_blocking(true);
-        printf("Press a to set Acc_out, p to set Power, d to set direction, c to cancel\n");
+        printf("Press a to set Acc_out, p to set Power, d to set direction, any other to cancel\n");
         pc.read(buf, 1);
         switch (buf[0]) {
             case 'a':
@@ -101,7 +101,7 @@ void command_loop() {
                 }
                 break;
             default:
-                printf("Unrecognized command. Exiting\n");
+                printf("Cancelling\n");
                 break;
         }
 
