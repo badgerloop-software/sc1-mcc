@@ -1,0 +1,3 @@
+// FEATURE FLAGS
+
+#define MONITOR_MODE    (1)
