@@ -1,5 +1,6 @@
 #include "gpio.h"
 #include <chrono>
+#include <cstdlib>
 
 using namespace std::chrono;
 
@@ -10,6 +11,10 @@ static uint64_t counter = 0;
 static float rpsCalcConstant = 0;
 uint8_t curState = 0;
 float targetValue = 0;
+
+// cruise control variables
+bool existPastValue = false;
+int pastValue = 0;
 
 // Bitmap offsets
 #define POWER_BIT 0x1 << 0
@@ -44,13 +49,13 @@ void clearGenGPIOTimer() { GenGPIODebouce.reset(); }
 void incrTick() { counter++; }
 
 // helper function for cruise control
-float CruiseControlLogic(float speed, float pastValue, bool existPastValue) {
-  if (CrzSet.read()) {
+float* CruiseControlLogic(float speed, float pastValue, bool existPastValue) {
+  if (CrzSet.read()) { //if driver press cruise set
     curGPIO |= CRZ_EN_BIT;
     targetValue = speed;
     pastValue = speed;
     existPastValue = true;
-  } else if (CrzRst.read()) {
+  } else if (CrzRst.read()) { //if driver press cruise reset
     if (existPastValue) {
       targetValue = pastValue;
     } else {
@@ -59,7 +64,10 @@ float CruiseControlLogic(float speed, float pastValue, bool existPastValue) {
       existPastValue = true;
     }
   }
-  return pastValue;
+  float *tta = (float*)malloc(2*sizeof(float)); // stores existPastValue & targetValue
+  tta [0] = targetValue; 
+  tta [1] = (float) existPastValue;
+  return tta;
 }
 
 /// Updates the curGPIO
@@ -75,10 +83,6 @@ void updateGPIO() {
       curGPIO &= ~(BRAKE_BIT);
     }
 
-    // Cruise Control
-    static bool existPastValue = false;
-    static int pastValue = 0;
-
     // curGPIO = CrzA.read() ? curGPIO &= ~(CRZ_M_BIT) : curGPIO |= CRZ_M_BIT;
     // int pastValue1 = CruiseControlLogic(curRPM, pastValue, existPastValue);
     //   existPastValue = (pastValue1 == pastValue);
@@ -86,9 +90,11 @@ void updateGPIO() {
 
     if (CrzA.read()) { // Mode A selected == RPM, CRZ_M_BIT = 0
       curGPIO &= ~(CRZ_M_BIT);
-      int pastValue1 = CruiseControlLogic(curRPM, pastValue, existPastValue);
-      existPastValue = (pastValue1 == pastValue);
-      pastValue = pastValue1;
+      float *tta;
+      tta = CruiseControlLogic(curRPM, pastValue, existPastValue);
+      existPastValue = tta[1];
+      pastValue = (bool) tta[0];
+      
       
     } else if (CrzB.read()) { // Mode B selected == Power, CRZ_M_BIT = 1
       curGPIO |= CRZ_M_BIT;
