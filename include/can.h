@@ -32,7 +32,7 @@
 #define ACC_SLOT              1 << 2
 #define BRK_SLOT              1 << 3
 #define PEDAL_SLOT            1 << 4
-#define PEDAL_PERCENT_SLOT    1 << 4
+#define PEDAL_PERCENT_SLOT    1 << 5
 
 extern EventFlags queueFlags;
 
