@@ -29,8 +29,6 @@ void analogUpdate() {
     curPedal = PEDAL_IN.read_voltage();
     pedal_percent_pressed = calculate_pedal_press(curPedal);
 
-    printf("%f\n", pedal_percent_pressed);
-
     // Pass through acceleration from pedal to motor
     ACC_OUT.write(ACC_SIG.read());
 
