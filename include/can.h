@@ -26,11 +26,13 @@
 
 
 #define MCC_OFFSET  200 // CAN Address offset for MCC board
-#define TOTAL_SIG   4   // Total # unique CAN signals from this board
-#define RPM_SLOT    1 << 0
-#define GPIO_SLOT   1 << 1
-#define ACC_SLOT    1 << 2
-#define BRK_SLOT    1 << 3
+#define TOTAL_SIG   6   // Total # unique CAN signals from this board
+#define RPM_SLOT              1 << 0
+#define GPIO_SLOT             1 << 1
+#define ACC_SLOT              1 << 2
+#define BRK_SLOT              1 << 3
+#define PEDAL_SLOT            1 << 4
+#define PEDAL_PERCENT_SLOT    1 << 4
 
 extern EventFlags queueFlags;
 
@@ -39,6 +41,8 @@ extern float curAcc;
 extern float curBrk;
 extern float curRPM;
 extern uint16_t curGPIO;
+extern float curPedal;
+extern float pedal_percent_pressed;
 
 
 /// Initializes output queue id's

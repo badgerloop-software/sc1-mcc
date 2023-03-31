@@ -21,7 +21,7 @@ int initCAN(int frequency) {
 
 #if TEST_MODE
 void printTable(uint16_t gpio, float rpm, float accel,
-                float brake) {
+                float brake, float pedal, float pedal_percent) {
   // Wipe screen
   printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
@@ -30,6 +30,8 @@ void printTable(uint16_t gpio, float rpm, float accel,
   printf("  RPM          |  %4.2f\n", rpm);
   printf("  Accel V      |  %4.2f\n", accel);
   printf("  Brake V      |  %4.2f\n", brake);
+  printf("  Pedal V      |  %4.2f\n", pedal);
+  printf("  Pedal %      |  %4.2f\n", pedal_percent);
   printf("  Power        |  %s\n", (((gpio >> 0) & 0x1) ? "On" : "Off"));
   printf("  Direction    |  %s\n", (((gpio >> 1) & 0x1) ? "Forward" : "Reverse"));  
   printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "On" : "Off"));
@@ -46,8 +48,8 @@ void CANSend() {
     uint32_t curMessage = 0;
 
     // Create message templates
-    uint32_t canIDs[TOTAL_SIG] = {0x200, 0x201, 0x202, 0x203};
-    void* dataPtrs[TOTAL_SIG] = {&curRPM, &curGPIO, &curAcc, &curBrk};
+    uint32_t canIDs[TOTAL_SIG] = {0x200, 0x201, 0x202, 0x203, 0x204, 0x205};
+    void* dataPtrs[TOTAL_SIG] = {&curRPM, &curGPIO, &curAcc, &curBrk, &curPedal, &pedal_percent_pressed};
     uint8_t lengths[TOTAL_SIG] = {4, 2, 4, 4};
 
     while (1) {
@@ -60,7 +62,7 @@ void CANSend() {
         }
 
         #if TEST_MODE
-        printTable(curGPIO, curRPM, curAcc, curBrk);
+        printTable(curGPIO, curRPM, curAcc, curBrk, curPedal, pedal_percent_pressed);
         #endif
 
         // Check if flag was from updated reading and not timeout
