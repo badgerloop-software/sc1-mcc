@@ -36,6 +36,7 @@ void analogUpdate() {
     queueFlags.set(ACC_SLOT);
     queueFlags.set(BRK_SLOT);
     queueFlags.set(PEDAL_SLOT);
+    queueFlags.set(PEDAL_PERCENT_SLOT);
 }
 
 
