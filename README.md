@@ -1,5 +1,5 @@
 # Solar Car 1 Motor Controller Controller
-*Authors: Wilson Guo, Sebastien Criqui, Declan Stanton, Khiem Vu. \
+*Authors: Wilson Guo, Sebastien Criqui, Declan Stanton, Khiem Vu, Jonathan Wang. \
  Mbed Studio Instructions stolen from pod-embedded-nucleo (Authors: Ezra Boley, Eric Udlis)*
 
 Repository for the Motor Controller Controller board powered by a Nucleo-F303K8. **__Running on Mbed OS v6.15.1__**

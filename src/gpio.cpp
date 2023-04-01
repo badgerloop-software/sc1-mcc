@@ -15,7 +15,6 @@ float targetValue = 0;
 // cruise control variables
 static bool existPastValue = false; // for resuming, tracks if a past value exists
 static int pastValue = 0;           // tracking previous value for resume
-static int currentSpeed = 0;        // (for testing), tracking the current speed of the car
 
 // Bitmap offsets
 #define POWER_BIT 0x1 << 0
@@ -98,49 +97,23 @@ void updateGPIO() {
       curGPIO &= ~(BRAKE_BIT);
     }
 
-    // curGPIO = CrzA.read() ? curGPIO &= ~(CRZ_M_BIT) : curGPIO |= CRZ_M_BIT;
-    // int pastValue1 = CruiseControlLogic(curRPM, pastValue, existPastValue);
-    //   existPastValue = (pastValue1 == pastValue);
-    //   pastValue = pastValue1;
-
-    // start test code
-    // simulate speed
-    if (spdPulse.read()) { // D1
-      currentSpeed += 5;
-    } else if (BrkStatus.read()) { // D12
-      currentSpeed += -5;
-    }
-    if ((curGPIO & CRZ_EN_BIT) > 0) {
-      currentSpeed = targetValue;
-    }
-    printf("target value: %f \n", targetValue);
-    printf("exist past value: %d \n", existPastValue);
-    printf("past value: %i \n", pastValue);
-    printf("current speed: %i \n", currentSpeed);
-    printf("cruz enabled %i \n", curGPIO & CRZ_EN_BIT);
-    // end test code
-
     if (BrkStatus.read()) { // Stop cruise control if braking
       curGPIO &= ~(CRZ_EN_BIT);
       printf("cruz stop\n");
 
     } else if (CrzA.read()) { // Mode A selected == RPM, CRZ_M_BIT = 0
       curGPIO &= ~(CRZ_M_BIT);
-      CruiseControlLogic(currentSpeed, pastValue, existPastValue, DELTA_RPM);
-      // printf("mode A on\n"); 
+      CruiseControlLogic(curRPM, pastValue, existPastValue, DELTA_RPM);
 
     } else if (CrzB.read()) { // Mode B selected == Power, CRZ_M_BIT = 1
       curGPIO |= CRZ_M_BIT;
-      CruiseControlLogic(currentSpeed, pastValue, existPastValue, DELTA_POWER);
-      // CruiseControlLogic(curPower)
-      //printf("mode B on\n");
+      //TODO: change curRPM current power draw of motor
+      CruiseControlLogic(curRPM, pastValue, existPastValue, DELTA_POWER);
 
     } else { // If neither mode is selected, turn off Cruise Control
       curGPIO &= ~(CRZ_EN_BIT);
       existPastValue = false;
-      //printf("cruz off off\n");
     }
-    // printf("%i",curGPIO);
 
     if (MCStatus.read()) {
       curGPIO |= MC_STAT_BIT;
