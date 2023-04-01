@@ -13,8 +13,9 @@ uint8_t curState = 0;
 float targetValue = 0;
 
 // cruise control variables
-bool existPastValue = false;
-int pastValue = 0;
+static bool existPastValue = false; // for resuming, tracks if a past value exists
+static int pastValue = 0;           // tracking previous value for resume
+static int currentSpeed = 0;        // (for testing), tracking the current speed of the car
 
 // Bitmap offsets
 #define POWER_BIT 0x1 << 0
@@ -22,8 +23,12 @@ int pastValue = 0;
 #define BRAKE_BIT 0x1 << 2
 #define ECO_BIT 0x1 << 3
 #define CRZ_EN_BIT 0x1 << 4
-#define CRZ_M_BIT 0x1 << 5
+#define CRZ_M_BIT 0x1 << 5  // 0 = Mode A, RPM; 1 = Mode B, Power
 #define MC_STAT_BIT 0x1 << 6
+
+//the step sizes when incrementing or decrementing speed in cruise control
+#define DELTA_POWER 9001
+#define DELTA_RPM 10
 
 // Initialize GPIO pins
 DigitalOut Power(D7); // 0 Off, 1 On
@@ -31,7 +36,7 @@ InterruptIn spdPulse(D1);
 InterruptIn CrzA(D3);
 InterruptIn CrzB(D4);
 InterruptIn CrzSet(D5);
-InterruptIn CrzRst(D6);
+InterruptIn CrzRsme(D6);
 DigitalOut Eco(D9); // 0 Off, 1 On
 InterruptIn MCStatus(D11);
 InterruptIn BrkStatus(D12); // 0 Off, 1 On
@@ -48,26 +53,36 @@ void clearGenGPIOTimer() { GenGPIODebouce.reset(); }
 /// Increments number of ticks to track motor rotation
 void incrTick() { counter++; }
 
-// helper function for cruise control
-float* CruiseControlLogic(float speed, float pastValue, bool existPastValue) {
-  if (CrzSet.read()) { //if driver press cruise set
+// helper function for cruise control (set, resume, brake, etc.)
+void CruiseControlLogic(float speed, float pastValue, bool existPastValue, int delta) {
+  bool isCruiseEnabled = (curGPIO & CRZ_EN_BIT) > 0; // determines if cruise control is enabled
+  
+  // if cruise control on, set increments speed and resume decrements speed
+  if (isCruiseEnabled && CrzSet.read()) { // set increments speed
+    targetValue += delta;
+  } else if (isCruiseEnabled && CrzRsme.read()) { // resume decrements speed
+    targetValue -= delta;
+  }
+
+  // if cruise control is intially off
+  if (!isCruiseEnabled && CrzSet.read()) { // if driver presses cruise set
     curGPIO |= CRZ_EN_BIT;
     targetValue = speed;
     pastValue = speed;
     existPastValue = true;
-  } else if (CrzRst.read()) { //if driver press cruise reset
-    if (existPastValue) {
+
+  } else if (!isCruiseEnabled && CrzRsme.read()) { // if driver presses cruise resume
+    if (existPastValue) { // past value exists, so change only target value
+      curGPIO |= CRZ_EN_BIT;
       targetValue = pastValue;
-    } else {
+
+    } else { // past value doesn't exist, so set it
+      curGPIO |= CRZ_EN_BIT;
       targetValue = speed;
       pastValue = speed;
       existPastValue = true;
     }
   }
-  float *tta = (float*)malloc(2*sizeof(float)); // stores existPastValue & targetValue
-  tta [0] = targetValue; 
-  tta [1] = (float) existPastValue;
-  return tta;
 }
 
 /// Updates the curGPIO
@@ -88,23 +103,44 @@ void updateGPIO() {
     //   existPastValue = (pastValue1 == pastValue);
     //   pastValue = pastValue1;
 
-    if (CrzA.read()) { // Mode A selected == RPM, CRZ_M_BIT = 0
+    // start test code
+    // simulate speed
+    if (spdPulse.read()) { // D1
+      currentSpeed += 5;
+    } else if (BrkStatus.read()) { // D12
+      currentSpeed += -5;
+    }
+    if ((curGPIO & CRZ_EN_BIT) > 0) {
+      currentSpeed = targetValue;
+    }
+    printf("target value: %f \n", targetValue);
+    printf("exist past value: %d \n", existPastValue);
+    printf("past value: %i \n", pastValue);
+    printf("current speed: %i \n", currentSpeed);
+    printf("cruz enabled %i \n", curGPIO & CRZ_EN_BIT);
+    // end test code
+
+    if (BrkStatus.read()) { // Stop cruise control if braking
+      curGPIO &= ~(CRZ_EN_BIT);
+      printf("cruz stop\n");
+
+    } else if (CrzA.read()) { // Mode A selected == RPM, CRZ_M_BIT = 0
       curGPIO &= ~(CRZ_M_BIT);
-      float *tta;
-      tta = CruiseControlLogic(curRPM, pastValue, existPastValue);
-      existPastValue = tta[1];
-      pastValue = (bool) tta[0];
-      
-      
+      CruiseControlLogic(currentSpeed, pastValue, existPastValue, DELTA_RPM);
+      // printf("mode A on\n"); 
+
     } else if (CrzB.read()) { // Mode B selected == Power, CRZ_M_BIT = 1
       curGPIO |= CRZ_M_BIT;
-      //CruiseControlLogic(curPower)
-      
+      CruiseControlLogic(currentSpeed, pastValue, existPastValue, DELTA_POWER);
+      // CruiseControlLogic(curPower)
+      //printf("mode B on\n");
 
-    } else { // If neither mode is selected, turn off Cruice Control
+    } else { // If neither mode is selected, turn off Cruise Control
       curGPIO &= ~(CRZ_EN_BIT);
       existPastValue = false;
+      //printf("cruz off off\n");
     }
+    // printf("%i",curGPIO);
 
     if (MCStatus.read()) {
       curGPIO |= MC_STAT_BIT;
@@ -167,7 +203,6 @@ void updateGPIO() {
   }
 }
 
-
 /// Updates the RPM calculation
 //  Automatically triggers CAN message
 void updateRPM() {
@@ -188,8 +223,8 @@ void initGPIO(milliseconds pollPeriodMS, milliseconds rpmCalcPeriodMS) {
   CrzB.fall(clearGenGPIOTimer);
   CrzSet.rise(clearGenGPIOTimer);
   CrzSet.fall(clearGenGPIOTimer);
-  CrzRst.rise(clearGenGPIOTimer);
-  CrzRst.fall(clearGenGPIOTimer);
+  CrzRsme.rise(clearGenGPIOTimer);
+  CrzRsme.fall(clearGenGPIOTimer);
   MCStatus.rise(clearGenGPIOTimer);
   MCStatus.fall(clearGenGPIOTimer);
   BrkStatus.rise(clearGenGPIOTimer);
@@ -222,8 +257,8 @@ void disableGPIO() {
   CrzB.fall(NULL);
   CrzSet.rise(NULL);
   CrzSet.fall(NULL);
-  CrzRst.rise(NULL);
-  CrzRst.fall(NULL);
+  CrzRsme.rise(NULL);
+  CrzRsme.fall(NULL);
   MCStatus.rise(NULL);
   MCStatus.fall(NULL);
   BrkStatus.rise(NULL);
