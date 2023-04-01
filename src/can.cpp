@@ -50,7 +50,7 @@ void CANSend() {
     // Create message templates
     uint32_t canIDs[TOTAL_SIG] = {0x200, 0x201, 0x202, 0x203, 0x204, 0x205};
     void* dataPtrs[TOTAL_SIG] = {&curRPM, &curGPIO, &curAcc, &curBrk, &curPedal, &pedal_percent_pressed};
-    uint8_t lengths[TOTAL_SIG] = {4, 2, 4, 4};
+    uint8_t lengths[TOTAL_SIG] = {4, 2, 4, 4, 4, 4};
 
     while (1) {
         // Wait for a message. Signaled by any bit in 32 bit flag being set
