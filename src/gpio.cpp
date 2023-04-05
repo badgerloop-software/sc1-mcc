@@ -1,5 +1,15 @@
+#include "mbed.h"
 #include "gpio.h"
 #include <chrono>
+
+// #define STUPID_TIMER
+
+
+#ifdef STUPID_TIMER
+typedef LowPowerTimer BloopTimer;
+#else
+typedef Timer BloopTimer;
+#endif
 
 using namespace std::chrono;
 
@@ -31,8 +41,8 @@ InterruptIn BrkStatus(D12);
 InterruptIn Direction(D13);
 
 // Timers and Function Tickers
-LowPowerTimer GenGPIODebouce;
-LowPowerTimer BrakeDebounce;
+BloopTimer GenGPIODebouce;
+BloopTimer BrakeDebounce;
 Ticker RPMTimer;
 Ticker GPIOTimer;
 
