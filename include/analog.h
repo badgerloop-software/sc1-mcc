@@ -13,8 +13,8 @@
 *
 * There's a small safety factor added - Ensures that a depressed pedal always returns 0% pressed
 */
-#define PEDAL_NO_PRESS 0.4
-#define PEDAL_FULL_PRESS 1.3
+#define PEDAL_NO_PRESS 0.529
+#define PEDAL_FULL_PRESS 1.492
 
 ///////////////////////////////////////////////////////////////////////
 /// SEE README IN "include" FOR HIGHER LEVEL DETAILS

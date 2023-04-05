@@ -19,8 +19,10 @@
 // 5           | Crz Mode    | D3/D4
 // 6           | MC Status   | D11
 // 7-15        | Unused      |  
-// NA          | Speed Pulse | D1
+// NA          | Speed Pulse | D10
 ///////////////////////////////////////////////////////////////////////
+
+#define SPEED_PULSE_PIN (D10)
 
 
 /// Initializes all GPIO interrupts
