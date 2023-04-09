@@ -30,16 +30,22 @@ static int pastValue = 0;           // tracking previous value for resume
 #define DELTA_RPM 10
 
 // Initialize GPIO pins
-DigitalOut Power(D7); // 0 Off, 1 On
+
 InterruptIn spdPulse(D1);
+InterruptIn MCStatus(D0);
 InterruptIn CrzA(D3);
 InterruptIn CrzB(D4);
 InterruptIn CrzSet(D5);
 InterruptIn CrzRsme(D6);
-DigitalOut Eco(D9); // 0 Off, 1 On
-InterruptIn MCStatus(D11);
+DigitalOut Power(D7); // 0 Off, 1 On //A2
+// DigitalOut DirectionOut(D7);
+DigitalOut Direction(D8);   // 0 Fwd, 1 Rev //A4 // incorrect?
+// InterruptIn AccGnd(D8);
+DigitalOut Eco(D9); // 0 Off, 1 On //A3
+// InterruptIn PBrkStatus(D9);
+// InterruptIn Brk2Status(D11);
 InterruptIn BrkStatus(D12); // 0 Off, 1 On
-DigitalOut Direction(D8);   // 0 Fwd, 1 Rev // incorrect?
+
 
 // Timers and Function Tickers
 Timer GenGPIODebouce;
