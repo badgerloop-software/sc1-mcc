@@ -13,8 +13,8 @@
 *
 * There's a small safety factor added - Ensures that a depressed pedal always returns 0% pressed
 */
-#define PEDAL_NO_PRESS 0.529
-#define PEDAL_FULL_PRESS 1.492
+#define PEDAL_NO_PRESS 0.331
+#define PEDAL_FULL_PRESS 1.364
 
 ///////////////////////////////////////////////////////////////////////
 /// SEE README IN "include" FOR HIGHER LEVEL DETAILS
@@ -22,10 +22,10 @@
 // Current Analog Pins
 // ---------------------------------
 // Name        | Direction   | Pin    | CAN Offset
-// Accel In    | Input       | A0     | 3
+// Accel In    | Input       | AX     | 3
 // Brake In    | Input       | A1     | 4
-// Pedal In    | Input       | A5     | 5    NOTE: Pedal outputs 5V
-// Accel Out   | Output      | A4     | n/a
+// Pedal In    | Input       | A0     | 5    NOTE: Pedal outputs 5V
+// Accel Out   | Output      | A3     | n/a
 ///////////////////////////////////////////////////////////////////////
 
 /// Initializes analog update functions at specified period
@@ -42,5 +42,12 @@ float calculate_pedal_press(float voltage);
 //  Run and reinit to change poll rate
 //  Returns 0 on success, -1 on failure
 int disableAnalog(void);
+
+/**
+* Returns voltage reading of pedal
+*/
+float analog_getCurPedal(void);
+
+bool calibrate_pedal(void);
 
 #endif
