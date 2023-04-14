@@ -44,12 +44,12 @@ void printTable(uint16_t gpio, float rpm, float accel,
 
 /// Sends CAN message from queue whenever entry present
 //  Loops forever, main thread will transform into this
-void CANSend() {
+void CANSend(float* dataPtrs[TOTAL_SIG]) {
     uint32_t curMessage = 0;
 
     // Create message templates
     uint32_t canIDs[TOTAL_SIG] = {0x200, 0x201, 0x202, 0x203, 0x204, 0x205};
-    void* dataPtrs[TOTAL_SIG] = {&curRPM, &curGPIO, &curAcc, &curBrk, &curPedal, &pedal_percent_pressed};
+    // void* dataPtrs[TOTAL_SIG] = data;
     uint8_t lengths[TOTAL_SIG] = {4, 2, 4, 4, 4, 4};
 
     while (1) {

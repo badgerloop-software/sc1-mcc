@@ -8,20 +8,14 @@
 
 /// Main code. Should initialize devices and then transform into the CAN loop
 
-InterruptIn main_telem(A4);
-InterruptIn eco_telem(A5);
-InterruptIn dir_telem(D8);
-InterruptIn mc_status(D0);
+// InterruptIn main_telem(A4);
+// InterruptIn eco_telem(A5);
+// InterruptIn dir_telem(D8);
+// InterruptIn mc_status(D0);
 
 static float counter = 0;
 
-void wait3sec(void)
-{
-    printf("STALLING\n\r");
-    calibrate_pedal();
-    drive_disableAccel();
-    wait_us(SEC_TO_USEC(3));
-}
+
 
 void ramp_to(float setpoint)
 {
@@ -45,14 +39,12 @@ int main()
     // initGPIO(1s, 1s);
     initAnalog(250ms);
     drive_initDrive();
-    // initCAN(125000);
-
-    main_telem.rise(&wait3sec);
+    initCAN(125000);
 
     while(1)
     {
         printf("\033[2J\033[;H");
-        if (!main_telem.read())
+        if (curGPIO)
         {
             printf("Motor controller is off\n\r");
             drive_setTargetVelocity(0);
@@ -79,16 +71,16 @@ int main()
             printf("Targeted RPS  %.2f RPS\n\r", target);
             #endif // CRUISE_CONTROL_PEDAL
             printf("Main Telem: ");
-            printf("%d\n\r", main_telem.read());
-            printf("Eco Telem: %s\n\r", !eco_telem.read() ?  "Power" : "ECO");
-            printf("Dir Telem: %s\n\r", dir_telem.read() ? "FWD" : "REV");
-            printf("MC Status: %d\n\r", !mc_status.read());
+            printf("%d\n\r", curGPIO & (1 << POWER_BIT));
+            printf("Eco Telem: %s\n\r", !(curGPIO & (1 << ECO_BIT)) ?  "Power" : "ECO");
+            printf("Dir Telem: %s\n\r", (curGPIO & (1 << DIRECTON_BIT)) ? "FWD" : "REV");
+            printf("MC Status: %d\n\r", !(curGPIO & (1 << MC_STAT_BIT)));
             printf("Pedal Per: %.2f%\n\r", calculate_pedal_press(analog_getCurPedal()));
             printf("Current Speed: %.2f MPH", RPS_TO_MPH(drive_getRPS()));
         }  
         wait_us(SEC_TO_USEC(.5));
     }
-
+    
     // Enter send loop
     // CANSend();
 }

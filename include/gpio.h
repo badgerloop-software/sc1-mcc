@@ -23,6 +23,15 @@
 // NA          | Speed Pulse | D1
 ///////////////////////////////////////////////////////////////////////
 
+// Bitmap offsets
+#define POWER_BIT       0
+#define DIRECTON_BIT    1
+#define BRAKE_BIT       2
+#define ECO_BIT         3
+#define CRZ_EN_BIT      4
+#define CRZ_M_BIT       5
+#define MC_STAT_BIT     6
+
 #define SPEED_PULSE_PIN (D1)
 
 
