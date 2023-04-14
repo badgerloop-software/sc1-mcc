@@ -18,12 +18,13 @@ static int pastValue = 0;           // tracking previous value for resume
 
 // Bitmap offsets
 #define POWER_BIT 0x1 << 0
-#define DIRECTON_BIT 0x1 << 1
-#define BRAKE_BIT 0x1 << 2
-#define ECO_BIT 0x1 << 3
-#define CRZ_EN_BIT 0x1 << 4
-#define CRZ_M_BIT 0x1 << 5  // 0 = Mode A, RPM; 1 = Mode B, Power
-#define MC_STAT_BIT 0x1 << 6
+#define DIRECTION_BIT 0x1 << 1
+#define DIRECTION_OUT_BIT 0x1 << 2
+#define BRAKE_BIT 0x1 << 3
+#define ECO_BIT 0x1 << 4
+#define CRZ_EN_BIT 0x1 << 5
+#define CRZ_M_BIT 0x1 << 6  // 0 = Mode A, RPM; 1 = Mode B, Power
+#define MC_STAT_BIT 0x1 << 7
 
 //the step sizes when incrementing or decrementing speed in cruise control
 #define DELTA_POWER 9001
@@ -37,13 +38,12 @@ InterruptIn CrzA(D3);
 InterruptIn CrzB(D4);
 InterruptIn CrzSet(D5);
 InterruptIn CrzRsme(D6);
-DigitalOut Power(D7); // 0 Off, 1 On //A2
-// DigitalOut DirectionOut(D7);
-DigitalOut Direction(D8);   // 0 Fwd, 1 Rev //A4 // incorrect?
-// InterruptIn AccGnd(D8);
-DigitalOut Eco(D9); // 0 Off, 1 On //A3
-// InterruptIn PBrkStatus(D9);
-// InterruptIn Brk2Status(D11);
+// DigitalOut Power(D7); // 0 Off, 1 On //A2, TODO
+DigitalOut DirectionOut(D7);
+DigitalOut Direction(D8);   // 0 Fwd, 1 Rev 
+// DigitalOut Eco(D9); // 0 Off, 1 On //A3, TODO
+InterruptIn PBrkStatus(D9);
+InterruptIn Brk2Status(D11);
 InterruptIn BrkStatus(D12); // 0 Off, 1 On
 
 
@@ -143,7 +143,7 @@ void updateGPIO() {
     if (!(curGPIO & POWER_BIT)) {
       curState = 0;
     } else if (curRPM < 5) {
-      Direction.write(curGPIO & DIRECTON_BIT);
+      Direction.write(curGPIO & DIRECTION_BIT);
     } else {
       if (Direction.read() == 1) {
         curState = 3;
