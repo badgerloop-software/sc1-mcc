@@ -76,17 +76,20 @@ void CruiseControlLogic(float speed, float pastValue, bool existPastValue, int d
     pastValue = speed;
     existPastValue = true;
 
-  } else if (!isCruiseEnabled && CrzRsme.read()) { // if driver presses cruise resume
+  // if driver presses cruise resume when not enabled
+  } else if (!isCruiseEnabled && CrzRsme.read()) { 
     if (existPastValue) { // past value exists, so change only target value
       curGPIO |= CRZ_EN_BIT;
       targetValue = pastValue;
 
-    } else { // past value doesn't exist, so set it
-      curGPIO |= CRZ_EN_BIT;
-      targetValue = speed;
-      pastValue = speed;
-      existPastValue = true;
-    }
+    } 
+    // else 
+    // { // past value doesn't exist, so set it (Note: currently cut from cruise control)
+    //   curGPIO |= CRZ_EN_BIT;
+    //   targetValue = speed;
+    //   pastValue = speed;
+    //   existPastValue = true;
+    // }
   }
 }
 
