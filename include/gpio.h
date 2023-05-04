@@ -11,16 +11,28 @@
 // GPIO Bitmap and Pins
 // ---------------------------------
 // Bit         | Name        | Pin(s)
-// 0           | Power       | D0
-// 1           | Direction   | D13
+// 0           | Power       | A4
+// 1           | Direction_r | D8 // TELEM
 // 2           | Brake       | D12
-// 3           | Eco         | D9
+// 3           | Eco         | A5
 // 4           | Crz Enable  | D5/D6
 // 5           | Crz Mode    | D3/D4
-// 6           | MC Status   | D11
-// 7-15        | Unused      |  
+// 6           | MC Status   | D0
+// 7           | Direction_w | D7 // CONTROL
+// 8-15        | Unused      |  
 // NA          | Speed Pulse | D1
 ///////////////////////////////////////////////////////////////////////
+
+// Bitmap offsets
+#define POWER_BIT       0
+#define DIRECTON_BIT    1
+#define BRAKE_BIT       2
+#define ECO_BIT         3
+#define CRZ_EN_BIT      4
+#define CRZ_M_BIT       5
+#define MC_STAT_BIT     6
+
+#define SPEED_PULSE_PIN (D1)
 
 
 /// Initializes all GPIO interrupts
