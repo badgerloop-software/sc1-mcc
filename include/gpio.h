@@ -4,6 +4,7 @@
 #include "can.h"
 #include "mbed.h"
 #include "stdint.h"
+#include <cstdint>
 
 /// Initializes all GPIO interrupts
 //  Initializes functions which update GPIO and RPM at specified interval
@@ -15,5 +16,7 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS);
 //  Run and reinit if desired to change poll/rps periods
 //  Returns 0 on success, -1 on failure
 int disableGPIO(void);
+
+extern uint16_t curGPIO; 
 
 #endif

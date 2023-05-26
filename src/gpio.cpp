@@ -29,6 +29,7 @@ static float    rpsCalcConstant = 0;
 InterruptIn MainTelem(MAIN_TELEM_PIN);
 InterruptIn EcoTelem(ECO_TELEM_PIN);
 InterruptIn DirTelem(DIR_TELEM_PIN);
+DigitalOut Direction(DIR_OUT_PIN);
 
 // Timers and Function Tickers
 BloopTimer GenGPIODebouce;

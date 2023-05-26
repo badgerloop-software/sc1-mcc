@@ -1,14 +1,14 @@
-#ifndef __CONCRETEMCCSTATES_H__
-#define __CONCRETEMCCSTATES_H__
+#ifndef __MCCSTATELIST_H__
+#define __MCCSTATELIST_H__
 #include "mbed.h"
-#include "mccstatemachine.h"
-#include "mccstateinterface.h"
+#include "mcc.h"
+#include "mccstate.h"
 
 class MccOff : public MccState {
     public:
-        void enter(Mcc* mcc);
+        void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
-        void exit(Mcc* mcc);
+        void exit(Mcc* mcc, MccState& newState);
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -20,9 +20,9 @@ class MccOff : public MccState {
 
 class MccPark : public MccState {
     public:
-        void enter(Mcc* mcc);
+        void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
-        void exit(Mcc* mcc);
+        void exit(Mcc* mcc, MccState& newState);
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -34,9 +34,9 @@ class MccPark : public MccState {
 
 class MccForward : public MccState {
     public:
-        void enter(Mcc* mcc);
+        void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
-        void exit(Mcc* mcc);
+        void exit(Mcc* mcc, MccState& newState);
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -48,9 +48,9 @@ class MccForward : public MccState {
 
 class MccReverse : public MccState {
     public:
-        void enter(Mcc* mcc);
+        void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
-        void exit(Mcc* mcc);
+        void exit(Mcc* mcc, MccState& newState);
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -62,4 +62,4 @@ class MccReverse : public MccState {
 
 
 
-#endif // __CONCRETEMCCSTATES_H__
+#endif // __MCCSTATELIST_H__

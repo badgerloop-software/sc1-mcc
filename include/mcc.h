@@ -1,7 +1,7 @@
-#ifndef __MCCSTATEMACHINE_H__
-#define __MCCSTATEMACHINE_H__
+#ifndef __MCC_H__
+#define __MCC_H__
 #include "mbed.h"
-#include "mccstateinterface.h"
+//#include "mccstate.h"
 
 class MccState;
 
@@ -18,4 +18,4 @@ class Mcc {
 
 
 
-#endif // __MCCSTATEMACHINE_H__
+#endif // __MCC_H__
