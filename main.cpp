@@ -21,21 +21,7 @@ int main()
     initCAN(125000);
     monitor_initMonitor(300ms);
     Mcc* mcc = new Mcc();
-
-    // while(1)
-    // {
-    //     if(!READ_BIT_POS(curGPIO, POWER_BIT))
-    //     {
-    //         drive_setTargetVelocity(0);
-    //         drive_disableAccel();
-    //     }
-    //     else
-    //     {
-    //         drive_overrideAccel(calculate_pedal_press(analog_getCurPedal()));
-    //     }
-    //     wait_us(SEC_TO_USEC(.75));
-    // }
-
+    
     while(1) {
         // current state of Mcc
         MccState* currentState = mcc->getCurrentState();
@@ -64,15 +50,51 @@ int main()
 
         // checks if in Forward State
         else if(currentState == &MccForward::getInstance()) {
-            // do sum shi
+            if(READ_BIT_POS(curGPIO, BRAKE_BIT) == PARK_ON) { // if parking break is on, switch to park state
+               mcc->setState(MccPark::getInstance());
+            }
+
+            // change to reverse state if wanted direction is reverse and speed is equal to 0
+            else if (READ_BIT_POS(curGPIO, DIRECTON_BIT) == DIRECTION_REVERSE && drive_getMPH() == 0) {
+                mcc->setState(MccReverse::getInstance());
+            }
+
+            // set acceleration if cruise control is set to on
+            else if(READ_BIT_POS(curGPIO, CRZ_EN_BIT) == CRZ_ON) {
+                mcc->setState(MccCruise::getInstance());
+            }
+
+             // if wanted direction is reverse but speed is not equal to 0, stay in forward state
+             // until speed is equal to 0, display error message
+            else if(READ_BIT_POS(curGPIO, DIRECTON_BIT) == DIRECTION_REVERSE && drive_getMPH() != 0) {
+                mcc->setState(MccForward::getInstance());
+            }
         }
 
         // checks if in Reverse State
-        else {
-            // do sum shi
-        }
-    }
+        else if(currentState == &MccReverse::getInstance()) {
+            if(READ_BIT_POS(curGPIO, BRAKE_BIT) == PARK_ON) { // if parking break is on, switch to park state
+                mcc->setState(MccPark::getInstance());
+            }
 
-    // Enter send loop
-    // CANSend();
+            // change to forward state if wanted direction is forward and speed is equal to 0
+            else if (READ_BIT_POS(curGPIO, DIRECTON_BIT) == DIRECTION_FORWARD && drive_getMPH() == 0) {
+                mcc->setState(MccForward::getInstance());
+            }
+
+             // if wanted direction is forward but speed is not equal to 0, stay in reverse state
+             // until speed is equal to 0, display error message
+            else if(READ_BIT_POS(curGPIO, DIRECTON_BIT) == DIRECTION_FORWARD && drive_getMPH() != 0) {
+                mcc->setState(MccReverse::getInstance());
+            }
+        }
+
+        // checks if in Cruise State (not sure what to do here)
+        else {
+
+        }
+        CANSend();
+
+        // maybe add delay?
+    }
 }

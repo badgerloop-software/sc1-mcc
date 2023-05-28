@@ -60,6 +60,20 @@ class MccReverse : public MccState {
 	    MccReverse& operator=(const MccReverse& other);
 };
 
+class MccCruise : public MccState {
+    public:
+        void enter(Mcc* mcc, MccState& newState);
+        void toggle(Mcc* mcc);
+        void exit(Mcc* mcc, MccState& newState);
+        static MccState& getInstance(); // returns a pointer to the singleton
+
+    // declare default constructor, copy constructor, and copy assignment operator as private
+    private:
+        MccCruise() {}
+	    MccCruise(const MccCruise& other);
+	    MccCruise& operator=(const MccCruise& other);
+};
+
 
 
 #endif // __MCCSTATELIST_H__
