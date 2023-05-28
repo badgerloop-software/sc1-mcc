@@ -6,13 +6,14 @@
 // Forward declaration to resolve circular dependency/include
 class mccstatemachine;
 
+// interface for an Mcc State
 class MccState
 {
 public:
-	virtual void enter(Mcc* light, MccState& newState) = 0;
-	virtual void toggle(Mcc* light) = 0;
-	virtual void exit(Mcc* light, MccState& newState) = 0;
-	virtual ~MccState() {}
+	virtual void enter(Mcc* light, MccState& newState) = 0; // do stuff before changing states
+	virtual void toggle(Mcc* light) = 0; // do stuff while in the state
+	virtual void exit(Mcc* light, MccState& newState) = 0; // do stuff when entering the state
+	virtual ~MccState() {} // destructor
 };
 
 

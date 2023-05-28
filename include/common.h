@@ -38,14 +38,15 @@
 #define BRAKE_IN_PIN   (A1)
 #define BRAKE_OUT      (A4
 
-// INPUT EFFECTS 
-// ^ come up with better name 
+// curGPIO BIT MEANINGS 
 #define DIRECTION_FORWARD (0)
 #define DIRECTION_REVERSE (1)
 #define PARK_ON           (1)
 #define PARK_OFF          (1)
 #define POWER_ON          (1)
 #define POWER_OFF         (0)
+#define CRZ_ON            (1)
+#define CRZ_OFF           (0)
 
 #define CAN_RD_PIN (PA_11)
 #define CAN_TD_PIN (PA_12)
