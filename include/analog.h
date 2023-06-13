@@ -7,7 +7,7 @@
 /*
  * Pedal voltage limits - Used to define percentage pressed
  * Current values obtained via measuring output values from pressing &
- * depressing pedal Update whenever the pedal -> MCC circuitry changes.
+ * depressing pedal. Update whenever the pedal -> MCC circuitry changes.
  *
  * NOTE: Pedal outputs 5V. This data was observed using a 1Kohm / 2Kohm voltage
  * divider.
