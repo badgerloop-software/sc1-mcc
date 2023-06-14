@@ -1,11 +1,11 @@
-#include "mbed.h"
 #include "gpio.h"
-#include "drive.h"
-#include "common.h"
-#include "analog.h"
-
 
 #include <chrono>
+
+#include "analog.h"
+#include "common.h"
+#include "drive.h"
+#include "mbed.h"
 
 // #define STUPID_TIMER
 // void clearGenGPIOTimer();
@@ -19,41 +19,25 @@ typedef Timer BloopTimer;
 
 using namespace std::chrono;
 
-// Variables 
-uint16_t curGPIO = 0; // Bitmap
-float curRPM = 0;
-static uint64_t counter = 0;
-static float rpsCalcConstant = 0;
-
-
+// Variables
+uint16_t        curGPIO         = 0; // Bitmap
+float           curRPM          = 0;
+static uint64_t counter         = 0;
+static float    rpsCalcConstant = 0;
 
 // Initialize GPIO pins
-// InterruptIn Power(A4);
-// InterruptIn spdPulse(D1);
-// InterruptIn CrzA(D3);
-// InterruptIn CrzB(D4);
-// InterruptIn CrzSet(D5);
-// InterruptIn CrzRst(D6);
-// InterruptIn Eco(D9);
-// InterruptIn MCStatus(D11);
-// InterruptIn BrkStatus(D12);
-// InterruptIn Direction(D13);
-InterruptIn MainTelem(A4);
-InterruptIn EcoTelem(A5);
-InterruptIn DirTelem(D8);
-InterruptIn MCStatus(D0);
+InterruptIn MainTelem(MAIN_TELEM_PIN);
+InterruptIn EcoTelem(ECO_TELEM_PIN);
+InterruptIn DirTelem(DIR_TELEM_PIN);
 
 // Timers and Function Tickers
 BloopTimer GenGPIODebouce;
 BloopTimer BrakeDebounce;
-Ticker RPMTimer;
-Ticker GPIOTimer;
-
+Ticker     RPMTimer;
+Ticker     GPIOTimer;
 
 // /// Clears debounce timer for general GPIO
-void clearGenGPIOTimer() {
-    GenGPIODebouce.reset();
-}
+void clearGenGPIOTimer() { GenGPIODebouce.reset(); }
 
 // /// Clears brake debounce timer
 // void clearBrakeTimer() {
@@ -65,14 +49,16 @@ void clearGenGPIOTimer() {
 //     counter++;
 // }
 
-
 // /// Updates the curGPIO at fixed interval
 // //  Automatically triggers CAN message on change
-void updateGPIO() {
+void updateGPIO()
+{
     uint16_t oldGPIO = curGPIO;
 
     // Update if signals have been stable
-    // if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() > 50) {
+    // if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() >
+    // 50)
+    // {
     //     if (BrkStatus.read()) {
     //         curGPIO |= 1UL << BRAKE_BIT;
     //     } else {
@@ -80,22 +66,32 @@ void updateGPIO() {
     //     }
     // }
 
-    if (duration_cast<milliseconds>(GenGPIODebouce.elapsed_time()).count() > 50) {
-        if (MainTelem.read()) {
+    if(duration_cast<milliseconds>(GenGPIODebouce.elapsed_time()).count() > 50)
+    {
+        if(MainTelem.read())
+        {
             curGPIO |= 1UL << POWER_BIT;
-        } else {
+        }
+        else
+        {
             curGPIO &= ~(1UL << POWER_BIT);
         }
 
-        if (DirTelem.read()) {
+        if(DirTelem.read())
+        {
             curGPIO |= 1UL << DIRECTON_BIT;
-        } else {
+        }
+        else
+        {
             curGPIO &= ~(1UL << DIRECTON_BIT);
         }
 
-        if (EcoTelem.read()) {
+        if(EcoTelem.read())
+        {
             curGPIO |= 1UL << ECO_BIT;
-        } else {
+        }
+        else
+        {
             curGPIO &= ~(1UL << ECO_BIT);
         }
 
@@ -112,23 +108,24 @@ void updateGPIO() {
         // } else if (CrzB.read()) {
         //     curGPIO |= 1UL << CRZ_M_BIT;
         // }
-
-        // if (MCStatus.read()) {
-        //     curGPIO |= 1UL << MC_STAT_BIT;
-        // } else {
-        //     curGPIO &= ~(1UL << MC_STAT_BIT);
-        // }
     }
-
+    // printf("%x\n\r", curGPIO);
     // If change, send CAN. Also send if stale in case of drop
-    if (oldGPIO != curGPIO || duration_cast<seconds>(GenGPIODebouce.elapsed_time()).count() > 30) {
+    if(oldGPIO != curGPIO
+       || duration_cast<seconds>(GenGPIODebouce.elapsed_time()).count() > 30)
+    {
         queueFlags.set(GPIO_SLOT);
         // Reset timers to avoid overflow
         BrakeDebounce.reset();
         GenGPIODebouce.reset();
-    }    
+    }
 }
 
+/**
+ * Per Motor Controller Spec the accel signal needs to be set to 0 for 3
+ * seconds after enabling the motor controller. This function will stall
+ * the car for 3 seconds.
+ */
 void wait3sec(void)
 {
     printf("STALLING\n\r");
@@ -137,102 +134,47 @@ void wait3sec(void)
     wait_us(SEC_TO_USEC(3));
 }
 
-
-// /// Updates the RPM at a fixed interval
-// //  Automatically triggers CAN message
-// void updateRPS() {
-//     // Update speed calculation
-//     curRPM = (float)counter * rpsCalcConstant;
-//     counter = 0;
-
-//     // Send over CAN
-//     queueFlags.set(RPM_SLOT);
-// }
-
-
-int initGPIO(std::chrono::milliseconds pollPeriodMS, std::chrono::milliseconds rpmCalcPeriodMS) {
-//     // Enable interrupts
-//     spdPulse.rise(incrTick);
-//     CrzA.rise(clearGenGPIOTimer);
-//     CrzA.fall(clearGenGPIOTimer);
-//     CrzB.rise(clearGenGPIOTimer);
-//     CrzB.fall(clearGenGPIOTimer);
-//     CrzSet.rise(clearGenGPIOTimer);
-//     CrzSet.fall(clearGenGPIOTimer);
-//     CrzRst.rise(clearGenGPIOTimer);
-//     CrzRst.fall(clearGenGPIOTimer);
-    // Power.rise(clearGenGPIOTimer);
-    // Power.fall(clearGenGPIOTimer);
-//     Direction.rise(clearGenGPIOTimer);
-//     Direction.fall(clearGenGPIOTimer);
-//     Eco.rise(clearGenGPIOTimer);
-//     Eco.fall(clearGenGPIOTimer);
-//     MCStatus.rise(clearGenGPIOTimer);
-//     MCStatus.fall(clearGenGPIOTimer);
-//     BrkStatus.rise(clearBrakeTimer);
-//     BrkStatus.fall(clearBrakeTimer);
+int initGPIO(std::chrono::milliseconds pollPeriodMS)
+{
+    //     // Enable interrupts
     MainTelem.fall(clearGenGPIOTimer);
     MainTelem.rise(clearGenGPIOTimer);
     EcoTelem.rise(clearGenGPIOTimer);
     EcoTelem.fall(clearGenGPIOTimer);
     DirTelem.rise(clearGenGPIOTimer);
     DirTelem.fall(clearGenGPIOTimer);
-    MCStatus.rise(clearGenGPIOTimer);
-    MCStatus.fall(clearGenGPIOTimer);
-    // INIT_GPIO(MainTelem);
     MainTelem.rise(&wait3sec);
-    // INIT_GPIO(EcoTelem);
-    // INIT_GPIO(DirTelem);
-    // INIT_GPIO(MCStatus);
 
-
-
-//     // Set constant for conversion from motor ticks to rpm 
-//     // Divide by 48 to get rotation, divide by sampling interval to get per second, mult by 60 for min
-//     rpsCalcConstant = (double)1250 / rpmCalcPeriodMS.count();
-
-//     // Start updating functions
-    // RPMTimer.attach(updateRPS, rpmCalcPeriodMS);
     GPIOTimer.attach(updateGPIO, pollPeriodMS);
 
-//     // Start timers
+    // Start timers
     GenGPIODebouce.start();
     BrakeDebounce.start();
 
     return 0;
 }
 
+/**
+ * Not currently used but good to think about
+ */
+int disableGPIO()
+{
+    // Disable interrupts
+    MainTelem.fall(NULL);
+    MainTelem.rise(NULL);
+    EcoTelem.rise(NULL);
+    EcoTelem.fall(NULL);
+    DirTelem.rise(NULL);
+    DirTelem.fall(NULL);
+    MainTelem.rise(NULL);
 
-// int disableGPIO() {
-//     // Disable interrupts
-//     spdPulse.rise(NULL);
-//     CrzA.rise(NULL);
-//     CrzA.fall(NULL);
-//     CrzB.rise(NULL);
-//     CrzB.fall(NULL);
-//     CrzSet.rise(NULL);
-//     CrzSet.fall(NULL);
-//     CrzRst.rise(NULL);
-//     CrzRst.fall(NULL);
-//     Power.rise(NULL);
-//     Power.fall(NULL);
-//     Direction.rise(NULL);
-//     Direction.fall(NULL);
-//     Eco.rise(NULL);
-//     Eco.fall(NULL);
-//     MCStatus.rise(NULL);
-//     MCStatus.fall(NULL);
-//     BrkStatus.rise(NULL);
-//     BrkStatus.fall(NULL);
+    // Stop updating functions
+    RPMTimer.detach();
+    GPIOTimer.detach();
 
-//     // Stop updating functions
-//     RPMTimer.detach();
-//     GPIOTimer.detach();
+    // Stop timers
+    GenGPIODebouce.stop();
+    BrakeDebounce.stop();
 
-//     // Stop timers
-//     GenGPIODebouce.stop();
-//     BrakeDebounce.stop();
-
-//     return 0;
-// }
-
+    return 0;
+}
