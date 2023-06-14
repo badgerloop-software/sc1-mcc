@@ -98,7 +98,7 @@ int main()
                 mcc->setState(OFF::getInstance());
             }
         }
-        CANSend();
+      //  CANSend();
         // maybe add delay?
     }
 }

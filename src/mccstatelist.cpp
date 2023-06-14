@@ -5,7 +5,7 @@
 #include "../include/analog.h"
 #include <cstdio>
 
-DigitalOut Direction(DIR_OUT_PIN);
+//DigitalOut Direction(DIR_OUT_PIN);
 
 // not quite sure if this is right
 // believe I still need to add one more transition between Off and Forward/Reverse
