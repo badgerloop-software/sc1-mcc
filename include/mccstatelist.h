@@ -4,7 +4,7 @@
 #include "mcc.h"
 #include "mccstate.h"
 
-class MccOff : public MccState {
+class OFF : public MccState {
     public:
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
@@ -13,12 +13,12 @@ class MccOff : public MccState {
 
     // declare default constructor, copy constructor, and copy assignment operator as private
     private:
-        MccOff() {}
-	    MccOff(const MccOff& other);
-	    MccOff& operator=(const MccOff& other);
+        OFF() {}
+	    OFF(const OFF& other);
+	    OFF& operator=(const OFF& other);
 };
 
-class MccPark : public MccState {
+class PARK : public MccState {
     public:
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
@@ -27,12 +27,12 @@ class MccPark : public MccState {
 
     // declare default constructor, copy constructor, and copy assignment operator as private
     private:
-        MccPark() {}
-	    MccPark(const MccPark& other);
-	    MccPark& operator=(const MccPark& other);
+        PARK() {}
+	    PARK(const PARK& other);
+	    PARK& operator=(const PARK& other);
 };
 
-class MccForward : public MccState {
+class FORWARD : public MccState {
     public:
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
@@ -41,12 +41,12 @@ class MccForward : public MccState {
 
     // declare default constructor, copy constructor, and copy assignment operator as private
     private:
-        MccForward() {}
-	    MccForward(const MccForward& other);
-	    MccForward& operator=(const MccForward& other);
+        FORWARD() {}
+	    FORWARD(const FORWARD& other);
+	    FORWARD& operator=(const FORWARD& other);
 };
 
-class MccReverse : public MccState {
+class REVERSE : public MccState {
     public:
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
@@ -55,23 +55,9 @@ class MccReverse : public MccState {
 
     // declare default constructor, copy constructor, and copy assignment operator as private
     private:
-        MccReverse() {}
-	    MccReverse(const MccReverse& other);
-	    MccReverse& operator=(const MccReverse& other);
-};
-
-class MccCruise : public MccState {
-    public:
-        void enter(Mcc* mcc, MccState& newState);
-        void toggle(Mcc* mcc);
-        void exit(Mcc* mcc, MccState& newState);
-        static MccState& getInstance(); // returns a pointer to the singleton
-
-    // declare default constructor, copy constructor, and copy assignment operator as private
-    private:
-        MccCruise() {}
-	    MccCruise(const MccCruise& other);
-	    MccCruise& operator=(const MccCruise& other);
+        REVERSE() {}
+	    REVERSE(const REVERSE& other);
+	    REVERSE& operator=(const REVERSE& other);
 };
 
 

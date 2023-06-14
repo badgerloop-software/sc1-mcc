@@ -9,32 +9,32 @@ DigitalOut Direction(DIR_OUT_PIN);
 
 // not quite sure if this is right
 // believe I still need to add one more transition between Off and Forward/Reverse
-void MccOff::enter(Mcc* mcc, MccState& newState) {
+void OFF::enter(Mcc* mcc, MccState& newState) {
     // set cruise control target velocity to 0, set acceleration of motor to 0
     drive_setTargetVelocity(0);
     drive_disableAccel();
 }
 
-void MccOff::toggle(Mcc* mcc) {}
+void OFF::toggle(Mcc* mcc) {}
 
-void MccOff::exit(Mcc* mcc, MccState& newState) {}
+void OFF::exit(Mcc* mcc, MccState& newState) {}
 
-MccState& MccOff::getInstance() {
-    static MccOff singleton;
+MccState& OFF::getInstance() {
+    static OFF singleton;
     return singleton;
 }
 
-void MccPark::enter(Mcc* mcc, MccState& newState) {
+void PARK::enter(Mcc* mcc, MccState& newState) {
     drive_setTargetVelocity(0); // not sure if this is done in Park State
     drive_disableAccel();
 }
 
-void MccPark::toggle(Mcc* mcc) {}
+void PARK::toggle(Mcc* mcc) {}
 
-void MccPark::exit(Mcc* mcc, MccState& newState) {
+void PARK::exit(Mcc* mcc, MccState& newState) {
 
     // checks if going from Park state to Forward state
-    if(&newState == &MccForward::getInstance()) {
+    if(&newState == &FORWARD::getInstance()) {
         Direction.write(DIRECTION_FORWARD); // set direction of motor to forward
         // set acceleration of motor to acceleration of pedal
         drive_overrideAccel(calculate_pedal_press(analog_getCurPedal())); 
@@ -46,61 +46,54 @@ void MccPark::exit(Mcc* mcc, MccState& newState) {
     }
 }
 
-MccState& MccPark::getInstance() {
-    static MccPark singleton;
+MccState& PARK::getInstance() {
+    static PARK singleton;
     return singleton;
 }
 
 
-void MccForward::enter(Mcc* mcc, MccState& newState) {}
+void FORWARD::enter(Mcc* mcc, MccState& newState) {}
 
-void MccForward::toggle(Mcc* mcc) {}
+void FORWARD::toggle(Mcc* mcc) {}
 
-void MccForward::exit(Mcc* mcc, MccState& newState) {
+void FORWARD::exit(Mcc* mcc, MccState& newState) {
 
     // checks if going from Forward state to Reverse state
-    if(&newState == &MccReverse::getInstance()) { 
+    if(&newState == &REVERSE::getInstance()) { 
         Direction.write(DIRECTION_REVERSE); // set direction of motor to reverse
         drive_overrideAccel(calculate_pedal_press(analog_getCurPedal()));
     }
 
-    // checks if going from Forward state to Cruise state
-    else if(&newState == &MccCruise::getInstance()) {
-
-        // do any other cruise stuff, not sure if this is everything
-        drive_overrideAccel(calculate_pedal_press(analog_getCurPedal()));
-    }
-
     // checks if going back to Forward state
-    else if(&newState == &MccForward::getInstance()) { // prints out an error saying that speed must be 0 before switching to reverse
+    else if(&newState == &FORWARD::getInstance()) { // prints out an error saying that speed must be 0 before switching to reverse
         printf("Must be at 0 mph before switching to Reverse");
     }
 }
 
-MccState& MccForward::getInstance() {
-    static MccForward singleton;
+MccState& FORWARD::getInstance() {
+    static FORWARD singleton;
     return singleton;
 }
 
-void MccReverse::enter(Mcc* mcc, MccState& newState) {}
+void REVERSE::enter(Mcc* mcc, MccState& newState) {}
 
-void MccReverse::toggle(Mcc* mcc) {}
+void REVERSE::toggle(Mcc* mcc) {}
 
-void MccReverse::exit(Mcc* mcc, MccState& newState) {
+void REVERSE::exit(Mcc* mcc, MccState& newState) {
 
     // checks if going from Reverse state to Forward state
-    if(&newState == &MccReverse::getInstance()) { 
+    if(&newState == &REVERSE::getInstance()) { 
         Direction.write(DIRECTION_FORWARD); // set direction of motor to reverse
         drive_overrideAccel(calculate_pedal_press(analog_getCurPedal()));
     }
 
     // checks if going back to Reverse state
-    else if(&newState == &MccReverse::getInstance()) { // prints out an error saying that speed must be 0 before switching to forward
+    else if(&newState == &REVERSE::getInstance()) { // prints out an error saying that speed must be 0 before switching to forward
         printf("Must be at 0 mph before switching to Forward");
     }
 }
 
-MccState& MccReverse::getInstance() {
-    static MccReverse singleton;
+MccState& REVERSE::getInstance() {
+    static REVERSE singleton;
     return singleton;
 }

@@ -3,7 +3,7 @@
 
 Mcc::Mcc() {
     // sets initial state to off state 
-    currentState = &MccOff::getInstance();
+    currentState = &OFF::getInstance();
 }
 
 // change states

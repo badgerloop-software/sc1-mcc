@@ -36,7 +36,7 @@
 #define ECO_TELEM_PIN  (D11)
 #define PEDAL_IN_PIN   (A6)
 #define BRAKE_IN_PIN   (A1)
-#define BRAKE_OUT      (A4
+#define BRAKE_OUT      (A4)
 
 // curGPIO BIT MEANINGS 
 #define DIRECTION_FORWARD (0)
