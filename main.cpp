@@ -23,6 +23,7 @@ int main()
     Mcc* mcc = new Mcc();
     
     while(1) {
+
         // current state of Mcc
         MccState* currentState = mcc->getCurrentState();
 
@@ -98,7 +99,10 @@ int main()
                 mcc->setState(OFF::getInstance());
             }
         }
-      //  CANSend();
+        float curGPIO_float = static_cast<float>(curGPIO);
+        float* data[TOTAL_SIG] = {&curGPIO_float, &curRPM, &curAcc, &curBrk, &curPedal, &pedal_percent_pressed};
+
+        CANSend(data);
         // maybe add delay?
     }
 }

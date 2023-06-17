@@ -4,7 +4,7 @@
 
 // FEATURE FLAGS
 // Turn on the functionality to run cruise control PID
-#define ENABLE_CRUISE_CONTROL (1)
+#define ENABLE_CRUISE_CONTROL (0)
 // Turn on the functionality to use the pedal as a cruise control setpoint -
 // useful for testing
 #define CRUISE_CONTROL_PEDAL (0)
@@ -39,10 +39,10 @@
 #define BRAKE_OUT      (A4)
 
 // curGPIO BIT MEANINGS 
-#define DIRECTION_FORWARD (0)
-#define DIRECTION_REVERSE (1)
+#define DIRECTION_FORWARD (1)
+#define DIRECTION_REVERSE (0)
 #define PARK_ON           (1)
-#define PARK_OFF          (1)
+#define PARK_OFF          (0)
 #define POWER_ON          (1)
 #define POWER_OFF         (0)
 #define CRZ_ON            (1)

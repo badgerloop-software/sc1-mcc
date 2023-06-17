@@ -50,6 +50,6 @@ int initCAN(int frequency);
 
 /// Sends CAN message from queue whenever entry present
 //  Loops forever, main thread will transform into this
-void CANSend();
+void CANSend(float *dataPtrs[TOTAL_SIG]);
 
 #endif

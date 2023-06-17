@@ -5,10 +5,6 @@
 #include "../include/analog.h"
 #include <cstdio>
 
-//DigitalOut Direction(DIR_OUT_PIN);
-
-// not quite sure if this is right
-// believe I still need to add one more transition between Off and Forward/Reverse
 void OFF::enter(Mcc* mcc, MccState& newState) {
     // set cruise control target velocity to 0, set acceleration of motor to 0
     drive_setTargetVelocity(0);
@@ -25,7 +21,7 @@ MccState& OFF::getInstance() {
 }
 
 void PARK::enter(Mcc* mcc, MccState& newState) {
-    drive_setTargetVelocity(0); // not sure if this is done in Park State
+    drive_setTargetVelocity(0);
     drive_disableAccel();
 }
 
