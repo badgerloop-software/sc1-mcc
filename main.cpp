@@ -61,6 +61,7 @@ int main()
             }
 
             // change to reverse state if wanted direction is reverse and speed is equal to 0
+            // TODO: Will need to modify the 0, it will never always just be 0. Need to set a range. 
             else if (READ_BIT_POS(curGPIO, DIRECTON_BIT) == DIRECTION_REVERSE && drive_getMPH() == 0) {
                 mcc->setState(REVERSE::getInstance());
             }
@@ -74,6 +75,10 @@ int main()
             // checks to see if Main_Telem goes low. If so, switches to Off state
             else if(READ_BIT_POS(curGPIO, POWER_BIT) == POWER_OFF) {
                 mcc->setState(OFF::getInstance());
+            }
+
+            else {
+                currentState->execute();
             }
         }
 
@@ -97,6 +102,10 @@ int main()
             // checks to see if Main_Telem goes low. If so, switches to Off state
             else if(READ_BIT_POS(curGPIO, POWER_BIT) == POWER_OFF) {
                 mcc->setState(OFF::getInstance());
+            }
+
+            else {
+                currentState->execute();
             }
         }
         float curGPIO_float = static_cast<float>(curGPIO);

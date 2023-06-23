@@ -9,6 +9,7 @@ class OFF : public MccState {
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
+        void execute();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -23,6 +24,7 @@ class PARK : public MccState {
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
+        void execute();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -37,6 +39,7 @@ class FORWARD : public MccState {
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
+        void execute();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -51,6 +54,7 @@ class REVERSE : public MccState {
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
+        void execute();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private

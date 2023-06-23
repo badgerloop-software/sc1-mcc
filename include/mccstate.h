@@ -11,8 +11,9 @@ class MccState
 {
 public:
 	virtual void enter(Mcc* light, MccState& newState) = 0; // do stuff before changing states
-	virtual void toggle(Mcc* light) = 0; // do stuff while in the state
+	virtual void toggle(Mcc* light) = 0; // let current state choose next state
 	virtual void exit(Mcc* light, MccState& newState) = 0; // do stuff when entering the state
+    virtual void execute(); // do stuff when in the state
 	virtual ~MccState() {} // destructor
 };
 
