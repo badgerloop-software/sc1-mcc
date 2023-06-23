@@ -51,5 +51,7 @@ int initCAN(int frequency);
 /// Sends CAN message from queue whenever entry present
 //  Loops forever, main thread will transform into this
 void CANSend(float *dataPtrs[TOTAL_SIG]);
+void printTable(uint16_t gpio, float rpm, float accel, float brake,
+                float pedal, float pedal_percent);
 
 #endif

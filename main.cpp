@@ -101,7 +101,7 @@ int main()
         }
         float curGPIO_float = static_cast<float>(curGPIO);
         float* data[TOTAL_SIG] = {&curGPIO_float, &curRPM, &curAcc, &curBrk, &curPedal, &pedal_percent_pressed};
-
+        printTable(curGPIO, curRPM, curAcc, curBrk, curPedal, pedal_percent_pressed);
         CANSend(data);
         // maybe add delay?
     }

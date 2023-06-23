@@ -3,7 +3,7 @@
 #include "common.h"
 #include "stdio.h"
 
-#define TEST_MODE 0
+#define TEST_MODE 1
 
 // Variables
 EventFlags queueFlags;
