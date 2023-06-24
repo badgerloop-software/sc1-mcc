@@ -7,8 +7,10 @@
 #include "drive.h"
 #include "mbed.h"
 #include "mc_status.h"
+//#include <iostream>
 
 static Ticker monitor_timer;
+Mcc* mcc_object;
 
 void monitor_private_printMonitor(void)
 {
@@ -28,12 +30,15 @@ void monitor_private_printMonitor(void)
     printf("Pedal Voltage       : %.2fv\n\r", analog_getCurPedal());
     printf("Pedal Percentage    : %.2f\n\r",
            calculate_pedal_press(analog_getCurPedal()));
-    printf("MC Status           : %s",
+    printf("MC Status           : %s\n\r",
            mc_status_getStatusString(mc_status_getStatus()));
+//    printf("Current State       : %s\n\r", mcc_object->getCurrentState()->getStateName());
+//    printf("Next State:         :%s\n\r", nextState->getStateName());
 }
 
-int monitor_initMonitor(std::chrono::milliseconds freq_ms)
+int monitor_initMonitor(std::chrono::milliseconds freq_ms, Mcc* mcc)
 {
+    mcc_object = mcc;
     monitor_timer.attach(&monitor_private_printMonitor, freq_ms);
     return 0;
 }

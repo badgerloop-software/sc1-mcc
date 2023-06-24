@@ -34,6 +34,7 @@
 #define ACC_OUT_PIN    (A3)
 #define MAIN_TELEM_PIN (D12)
 #define ECO_TELEM_PIN  (D11)
+#define PARKING_BREAK  (D5)
 #define PEDAL_IN_PIN   (A6)
 #define BRAKE_IN_PIN   (A1)
 #define BRAKE_OUT      (A4)

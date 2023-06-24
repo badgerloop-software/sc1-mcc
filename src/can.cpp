@@ -37,7 +37,7 @@ void printTable(uint16_t gpio, float rpm, float accel, float brake,
     printf("  Power        |  %s\n", (((gpio >> 0) & 0x1) ? "On" : "Off"));
     printf("  Direction    |  %s\n",
            (((gpio >> 1) & 0x1) ? "Forward" : "Reverse"));
-    printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "On" : "Off"));
+    printf("  Brake        |  %s\n", (((gpio >> 2) & 0x1) ? "ON" : "OFF"));
     printf("  Eco          |  %s\n", (((gpio >> 3) & 0x1) ? "Eco" : "Sport"));
     printf("  Crz Enable   |  %s\n", (((gpio >> 4) & 0x1) ? "On" : "Off"));
     printf("  Crz Mode     |  %s\n", (((gpio >> 5) & 0x1) ? "B" : "A"));

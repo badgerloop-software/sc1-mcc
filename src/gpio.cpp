@@ -29,6 +29,7 @@ static float    rpsCalcConstant = 0;
 InterruptIn MainTelem(MAIN_TELEM_PIN);
 InterruptIn EcoTelem(ECO_TELEM_PIN);
 InterruptIn DirTelem(DIR_TELEM_PIN);
+InterruptIn BrkStatus(PARKING_BREAK);
 DigitalOut Direction(DIR_OUT_PIN);
 
 // Timers and Function Tickers
@@ -41,14 +42,14 @@ Ticker     GPIOTimer;
 void clearGenGPIOTimer() { GenGPIODebouce.reset(); }
 
 // /// Clears brake debounce timer
-// void clearBrakeTimer() {
-//     BrakeDebounce.reset();
-// }
+void clearBrakeTimer() {
+    BrakeDebounce.reset();
+}
 
 // /// Increments number of ticks
-// void incrTick() {
-//     counter++;
-// }
+void incrTick() {
+    counter++;
+}
 
 // /// Updates the curGPIO at fixed interval
 // //  Automatically triggers CAN message on change
@@ -57,15 +58,15 @@ void updateGPIO()
     uint16_t oldGPIO = curGPIO;
 
     // Update if signals have been stable
-    // if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() >
-    // 50)
-    // {
-    //     if (BrkStatus.read()) {
-    //         curGPIO |= 1UL << BRAKE_BIT;
-    //     } else {
-    //         curGPIO &= ~(1UL << BRAKE_BIT);
-    //     }
-    // }
+    if (duration_cast<milliseconds>(BrakeDebounce.elapsed_time()).count() >
+    50)
+    {
+        if (BrkStatus.read()) {
+            curGPIO |= 1UL << BRAKE_BIT;
+        } else {
+            curGPIO &= ~(1UL << BRAKE_BIT);
+        }
+    }
 
     if(duration_cast<milliseconds>(GenGPIODebouce.elapsed_time()).count() > 50)
     {
@@ -144,6 +145,8 @@ int initGPIO(std::chrono::milliseconds pollPeriodMS)
     EcoTelem.fall(clearGenGPIOTimer);
     DirTelem.rise(clearGenGPIOTimer);
     DirTelem.fall(clearGenGPIOTimer);
+    BrkStatus.rise(clearBrakeTimer);
+    BrkStatus.fall(clearBrakeTimer);
     MainTelem.rise(&wait3sec);
 
     GPIOTimer.attach(updateGPIO, pollPeriodMS);
@@ -167,6 +170,8 @@ int disableGPIO()
     EcoTelem.fall(NULL);
     DirTelem.rise(NULL);
     DirTelem.fall(NULL);
+    BrkStatus.rise(NULL);
+    BrkStatus.fall(NULL);    
     MainTelem.rise(NULL);
 
     // Stop updating functions

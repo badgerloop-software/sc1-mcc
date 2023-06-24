@@ -3,7 +3,7 @@
 #include "../include/gpio.h"
 #include "../include/drive.h"
 #include "../include/analog.h"
-#include <cstdio>
+// #include <cstdio>
 
 void OFF::enter(Mcc* mcc, MccState& newState) {
     // set cruise control target velocity to 0, set acceleration of motor to 0
@@ -16,6 +16,10 @@ void OFF::toggle(Mcc* mcc) {}
 void OFF::exit(Mcc* mcc, MccState& newState) {}
 
 void OFF::execute() {}
+
+const char* OFF::getStateName() {
+    return "OFF";
+}
 
 MccState& OFF::getInstance() {
     static OFF singleton;
@@ -32,6 +36,10 @@ void PARK::toggle(Mcc* mcc) {}
 void PARK::exit(Mcc* mcc, MccState& newState) {}
 
 void PARK::execute() {}
+
+const char* PARK::getStateName() {
+    return "PARK";
+}
 
 MccState& PARK::getInstance() {
     static PARK singleton;
@@ -58,6 +66,10 @@ void FORWARD::execute() {
     drive_overrideAccel(calculate_pedal_press(analog_getCurPedal()));
 }
 
+const char* FORWARD::getStateName() {
+    return "FORWARD";
+}
+
 MccState& FORWARD::getInstance() {
     static FORWARD singleton;
     return singleton;
@@ -80,6 +92,10 @@ void REVERSE::exit(Mcc* mcc, MccState& newState) {
 
 void REVERSE::execute() {
     drive_overrideAccel(calculate_pedal_press(analog_getCurPedal()));
+}
+
+const char* REVERSE::getStateName() {
+    return "REVERSE";
 }
 
 MccState& REVERSE::getInstance() {

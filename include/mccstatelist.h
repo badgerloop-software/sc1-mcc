@@ -4,12 +4,15 @@
 #include "mcc.h"
 #include "mccstate.h"
 
+extern MccState* nextState;
+
 class OFF : public MccState {
     public:
         void enter(Mcc* mcc, MccState& newState);
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
         void execute();
+        const char* getStateName();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -25,6 +28,7 @@ class PARK : public MccState {
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
         void execute();
+        const char* getStateName();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -40,6 +44,7 @@ class FORWARD : public MccState {
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
         void execute();
+        const char* getStateName();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -55,6 +60,7 @@ class REVERSE : public MccState {
         void toggle(Mcc* mcc);
         void exit(Mcc* mcc, MccState& newState);
         void execute();
+        const char* getStateName();
         static MccState& getInstance(); // returns a pointer to the singleton
 
     // declare default constructor, copy constructor, and copy assignment operator as private
@@ -63,7 +69,5 @@ class REVERSE : public MccState {
 	    REVERSE(const REVERSE& other);
 	    REVERSE& operator=(const REVERSE& other);
 };
-
-
 
 #endif // __MCCSTATELIST_H__
