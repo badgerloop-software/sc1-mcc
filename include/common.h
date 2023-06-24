@@ -42,8 +42,8 @@
 // curGPIO BIT MEANINGS 
 #define DIRECTION_FORWARD (1)
 #define DIRECTION_REVERSE (0)
-#define PARK_ON           (1)
-#define PARK_OFF          (0)
+#define PARK_ON           (0)
+#define PARK_OFF          (1)
 #define POWER_ON          (1)
 #define POWER_OFF         (0)
 #define CRZ_ON            (1)

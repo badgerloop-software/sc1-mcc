@@ -128,6 +128,6 @@ int main()
         printf("\nCalculated Analog Signal: %4.2f\n", calculate_pedal_press(analog_getCurPedal()));
         printTable(curGPIO, curRPM, curAcc, curBrk, curPedal, pedal_percent_pressed);
   //      CANSend(data);
-        wait_us(6000000);
+     //   wait_us(6000000);
     }
 }
