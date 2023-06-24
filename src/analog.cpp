@@ -15,7 +15,7 @@ static float pedal_deadzone = 0.22;
 // Initialize Analog pins
 // AnalogIn ACC_SIG(A2);
 // AnalogIn BRK_SIG(A1);
-// AnalogOut ACC_OUT(A4);
+//AnalogOut BRK_OUT(A4);
 AnalogIn PEDAL_IN(PEDAL_IN_PIN);
 
 // Update function ticker
@@ -60,7 +60,7 @@ int initAnalog(std::chrono::milliseconds pollRateMS)
     // ACC_SIG.set_reference_voltage(3.3);
     // BRK_SIG.set_reference_voltage(3.3);
     PEDAL_IN.set_reference_voltage(3.3);
-
+  //  BRK_OUT.write(0);
     // Start pdating function
     ACC_TIMER.attach(analogUpdate, pollRateMS);
 

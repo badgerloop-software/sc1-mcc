@@ -15,6 +15,8 @@
 
 int main()
 {
+    // AnalogOut BRK_OUT(A4);
+    // BRK_OUT.write(0);
     // Initializes devices
     initGPIO(250ms);
     initAnalog(250ms);
