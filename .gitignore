@@ -3,6 +3,7 @@
 projectfiles
 *.py*
 mbed-os
+cmake_build
 BUILD
 
 PID
