@@ -11,15 +11,15 @@
 int main()
 {
     // Initializes devices
-    initGPIO(250ms);
-    initAnalog(250ms);
-    drive_initDrive();
-    initCAN(125000);
-    monitor_initMonitor(300ms);
+    //initGPIO(250ms);
+    //initAnalog(250ms);
+    //drive_initDrive();
+    //initCAN(125000);
+    //monitor_initMonitor(300ms);
 
     while(1)
     {
-        if(!READ_BIT_POS(curGPIO, POWER_BIT))
+        /*if(!READ_BIT_POS(curGPIO, POWER_BIT))
         {
             drive_setTargetVelocity(0);
             drive_disableAccel();
@@ -27,7 +27,8 @@ int main()
         else
         {
             drive_overrideAccel(calculate_pedal_press(analog_getCurPedal()));
-        }
+        }*/
+		printf("Heyooo\n");
         wait_us(SEC_TO_USEC(.75));
     }
 

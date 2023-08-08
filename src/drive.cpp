@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "PID.h"
+//#include "PID.h"
 #include "analog.h"
 #include "common.h"
 #include "gpio.h"
@@ -14,7 +14,7 @@ static Ticker    speed_reader;
 static Ticker    drive_writer;
 InterruptIn      speed_pin(SPEED_PULSE_PIN);
 static float     rps = 0;
-static PID       drive_controller(KP, KI, KD, PID_RATE_SEC);
+//static PID       drive_controller(KP, KI, KD, PID_RATE_SEC);
 static AnalogOut ACC_OUT(ACC_OUT_PIN);
 static float     speed_setpoint = 0;
 
@@ -73,8 +73,8 @@ static void readCounter()
  */
 static void writeDrive()
 {
-    drive_controller.setProcessValue(rps);
-    ACC_OUT.write(drive_controller.compute());
+    //drive_controller.setProcessValue(rps);
+    //ACC_OUT.write(drive_controller.compute());
 }
 
 /**
@@ -98,7 +98,7 @@ bool drive_setTargetVelocity(float target_vel)
         return false;
     }
     speed_setpoint = target_vel;
-    drive_controller.setSetPoint(target_vel);
+    //drive_controller.setSetPoint(target_vel);
     return true;
 }
 
@@ -113,11 +113,11 @@ int drive_initDrive()
     speed_pin.rise(&incCounter);
     speed_reader.attach(&readCounter, WAIT_TIME_MSEC);
 #if CRUISE_CONTROL_ENABLED
-    drive_writer.attach(&writeDrive, PID_RATE_MSEC_CHRONO);
-    drive_controller.setInputLimits(MIN_RPS, MAX_RPS);
-    drive_controller.setOutputLimits(0, 1);
-    drive_controller.setBias(VOLT_TO_PERCENT(1.5));
-    drive_controller.setMode(AUTO_MODE);
+//    drive_writer.attach(&writeDrive, PID_RATE_MSEC_CHRONO);
+    //drive_controller.setInputLimits(MIN_RPS, MAX_RPS);
+    //drive_controller.setOutputLimits(0, 1);
+    //drive_controller.setBias(VOLT_TO_PERCENT(1.5));
+    //drive_controller.setMode(AUTO_MODE);
 #endif // CRUISE_CONTROL_ENABLED
     return 1;
 }
