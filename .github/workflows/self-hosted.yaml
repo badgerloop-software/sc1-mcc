@@ -1,0 +1,29 @@
+name: test-self-hosted
+
+on:
+# Doesn't work until this is merged to main, so it's useless here:  workflow_dispatch:
+  push:
+    branches:
+      - 'mbed-cli'
+
+jobs:
+  self-hosted-test:
+    runs-on:
+      - self-hosted
+
+    steps:
+     - name: Get Repo
+       uses: actions/checkout@v3
+
+# TODO Remove this step, or at least the first command
+     - name: Show Device Info
+       run: |
+         ls -l /media/ubuntu/
+         mbed-tools detect
+
+     - name: Fetch Mbed Libraries
+       run: mbed-tools deploy
+
+     - name: Compile and Flash
+       run: mbed-tools compile -t GCC_ARM -m NUCLEO_F303K8 --flash
+
