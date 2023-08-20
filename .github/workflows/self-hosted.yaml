@@ -5,25 +5,155 @@ on:
   push:
     branches:
       - 'mbed-cli'
+#TODO  pull_request:
+#    branches:
+#      - 'main'
 
 jobs:
-  self-hosted-test:
+  setup:
+    runs-on:
+      - self-hosted
+
+    outputs:
+      target: ${{ steps.get-dev-info.outputs.device }}
+      ser_port: ${{ steps.get-dev-info.outputs.serial }}
+
+    steps:
+# Added in case two jobs are scheduled to run in quick succession.
+# This will prevent the second job from being interrupted by a reset
+     - name: Clear Pending Shutdown
+       run: shutdown -c
+
+     - name: Set Environment Variables
+       run: |
+         echo "MBED_OS_REF_LOCATION=$HOME/${{ github.repository }}/mbed-os-ref" >> "$GITHUB_ENV"
+
+     - name: Get Repo
+       uses: actions/checkout@v3
+       with:
+# Don't run `git clean -ffdx` and `git reset --hard HEAD` in this step to avoid removing `mbed-os/`.
+# These will be run post checkout in the following step
+         clean: false
+# For PRs, just fetch a merge commit, the base branch, and the target branch
+# For pushes, fetch all history so that GitHub contexts (i.e. github.event.{before,after})
+# can be used to determine the changed files between pushes
+# TODO         fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+
+# Clean up any changes in the working index, including untracked files aside from mbed-os/
+     - name: Post Checkout Cleanup
+       run: |
+         git clean -ffdxe mbed-os
+         git reset --hard HEAD
+
+# Checks if the current reference in mbed-os.lib is the same as what is stored on the runner from the
+# previous workflow. If not, update the stored reference and fetch the new libraries
+# TODO This only handles mbed-os.lib. To be able to handle other .lib files, it would be worth creating
+#      a script or custom action to check/update all library references
+     - name: Check if mbed-os Libraries Need to be Fetched
+       id: check-mbed-os-libs
+       run: |
+         if [[ -f "$MBED_OS_REF_LOCATION/mbed-os.lib" ]]; then
+           if [[ -n $(diff "$MBED_OS_REF_LOCATION/mbed-os.lib" mbed-os.lib) ]]; then
+             cp mbed-os.lib "$MBED_OS_REF_LOCATION"
+             echo "fetch_libs=y" >> "$GITHUB_OUTPUT"
+             echo "Needed to fetch mbed-os libraries because they were not up-to-date on the runner" >> $GITHUB_STEP_SUMMARY
+           else
+             echo "fetch_libs=$([[ -d mbed-os ]] && echo n || echo y)" >> "$GITHUB_OUTPUT"
+             [[ -d mbed-os ]] && \
+               echo "mbed-os libraries are up-to-date :relieved:" >> $GITHUB_STEP_SUMMARY || \
+               echo "Needed to fetch mbed-os libraries because mbed-os did not exist on the runner, but the stored library reference was up-to-date :finnadie:" >> $GITHUB_STEP_SUMMARY
+           fi
+         else
+           mkdir -p "$MBED_OS_REF_LOCATION"
+           cp mbed-os.lib "$MBED_OS_REF_LOCATION"
+           echo "fetch_libs=$([[ -d mbed-os ]] && echo n || echo y)" >> "$GITHUB_OUTPUT"
+           echo "Needed to fetch mbed-os libraries because neither mbed-os nor the stored reference was present on the runner :point_right::point_left:" >> $GITHUB_STEP_SUMMARY
+         fi
+
+     - name: Fetch Mbed Libraries
+       if: steps.check-mbed-os-libs.outputs.fetch_libs == 'y'
+       run: |
+         if [[ -d mbed-os ]]; then
+           echo "Removing mbed-os before fetching libraries"
+           rm -rf mbed-os
+         fi
+         mbed-tools deploy
+
+# Get all changed files in case we are interested in files other than mbed-os.lib in the future
+#     - name: Get Changed Files
+#       id: changed-files
+#       run: |
+#         echo "Event before: ${{ github.event.before }}"
+#         echo "Event after: ${{ github.event.after }}"
+#         {
+#           echo 'changed_files<<EOF'
+#           if ${{ github.event_name == 'pull_request' }}; then
+#             git diff --name-only -r HEAD^1 HEAD
+#           else
+#             git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
+#           fi
+#           echo EOF
+#         } >> "$GITHUB_OUTPUT"
+# TODO           echo "changed_files=$(git diff --name-only -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
+
+#     - name: Handle Changed Files
+#       run: |
+#         echo "${{ steps.changed-files.outputs.changed_files }}"
+#         echo "mbed_os_lib_changed: $(echo '${{ steps.changed-files.outputs.changed_files }}' | grep -x mbed-os.lib)"
+#         echo "mbed_os_lib_exists: $([[ ! -d mbed-os ]] && echo 'n' || echo 'y')"
+#         if [ -n "$(echo '${{ steps.changed-files.outputs.changed_files }}' | grep -x mbed-os.lib)" ] || \
+#            [ ! -d mbed-os ]
+#         then
+#           echo "Need to fetch mbed-os libraries"
+#         else
+#           echo "We're good on mbed-os libraries"
+#         fi
+
+#     - id: get_local_mbed_os_ref
+#       name: Get Local mbed-os Reference
+#       run: echo "local_mbedos_ref=$(cat mbed-os.lib)" >> "$GITHUB_ENV"
+
+#     - name: Handle mbed-os Diff
+#       if: ${{ vars.MBED_OS_REF != env.local_mbedos_ref }}
+#       run: |
+#         echo "There's a difference in mbed-os references"
+#         echo "TEST_VAR: $TEST_VAR"
+# TODO         echo "MBED_OS_REF=${{ env.local_mbedos_ref }}" >> "${{ vars.MBED_OS_REF }}"
+
+# Gets device info using `mbed-tools detect` and sets output needed for compiling and flashing
+     - name: Get Device Info
+       id: get-dev-info
+       run: |
+         ls -l /media/ubuntu/
+         detect_out=$(mbed-tools detect)
+         device=$(echo "$detect_out" | grep -oE "NUCLEO_\\S*")
+         serial=$(echo "$detect_out" | grep -oE "/dev/tty\\S*")
+         if [[ -z "$device" || -z "$serial" ]]; then
+           echo "Failed to detect target and/or serial port matching 'NUCLEO_*' and '/dev/tty*', respectively :hurtrealbad:" >> $GITHUB_STEP_SUMMARY
+           exit 1
+         fi
+         echo "device=$device" >> "$GITHUB_OUTPUT"
+         echo "serial=$serial" >> "$GITHUB_OUTPUT"
+         echo "Found target '$device' connected to serial port '$serial' :relieved:" >> $GITHUB_STEP_SUMMARY
+
+  compile-and-flash:
+    needs: setup
     runs-on:
       - self-hosted
 
     steps:
-     - name: Get Repo
-       uses: actions/checkout@v3
-
-# TODO Remove this step, or at least the first command
-     - name: Show Device Info
-       run: |
-         ls -l /media/ubuntu/
-         mbed-tools detect
-
-     - name: Fetch Mbed Libraries
-       run: mbed-tools deploy
-
+# Using a step summary and symlink so that the flash status is shown in the job summary
      - name: Compile and Flash
-       run: mbed-tools compile -t GCC_ARM -m NUCLEO_F303K8 --flash
+       run: |
+         mbed-tools compile -t GCC_ARM -m ${{ needs.setup.outputs.target }} --flash
+         echo "Successfully flashed to ${{ needs.setup.outputs.target }} :v:" >> $GITHUB_STEP_SUMMARY
+         ln -s "$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/flash_summary"
+
+# Once this job is finished, the "Complete runner" job will run, which involves running a script specified in
+# /path/to/actions-runner/.env. This script conditionally runs another script in the background that triggers
+# a reboot of the runner once the job is finished. You may be asking yourself why we're rebooting after every
+# flash. Well, it's because Mbed CLI 2 is unreliable and often fails to flash code to the board more than 3
+# consecutive times, and rebooting the host is the only reliable way to avoid this that we've found. Do I
+# hate it? Yes. Is it a shame to have to do something so janky? Yes. Am I going to put more effort towards
+# finding a different solution? Not until I absolutely have to because I've spent weeks working on it already.
 
