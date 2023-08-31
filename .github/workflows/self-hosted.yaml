@@ -145,9 +145,13 @@ jobs:
 # Using a step summary and symlink so that the flash status is shown in the job summary
      - name: Compile and Flash
        run: |
-         mbed-tools compile -t GCC_ARM -m ${{ needs.setup.outputs.target }} --flash
+         mbed-tools configure -t GCC_ARM -m ${{ needs.setup.outputs.target }}
+         cmake -S . -B cmake_build/${{ needs.setup.outputs.target }}/develop/GCC_ARM -DBLINK_RATE=500 -GNinja
+         cmake --build cmake_build/${{ needs.setup.outputs.target }}/develop/GCC_ARM
+         cp cmake_build/${{ needs.setup.outputs.target }}/develop/GCC_ARM/sc1-mcc.bin /media/ubuntu/MBED/ #TODO Use variables for these locations
          echo "Successfully flashed to ${{ needs.setup.outputs.target }} :v:" >> $GITHUB_STEP_SUMMARY
          ln -s "$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/flash_summary"
+#        mbed-tools compile -t GCC_ARM -m ${{ needs.setup.outputs.target }} --flash
 
 # Once this job is finished, the "Complete runner" job will run, which involves running a script specified in
 # /path/to/actions-runner/.env. This script conditionally runs another script in the background that triggers

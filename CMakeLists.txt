@@ -23,6 +23,17 @@ set(SRC_FILES
     ${SRC_DIR}/monitor.cpp
 )
 
+# Example of defining binary preprocessor
+OPTION(DEF_BLINK_RATE_250 "Blinking rate optionally specified on command line" OFF)
+IF(DEF_BLINK_RATE_250)
+    ADD_DEFINITIONS(-DBLINK_RATE_250)
+ENDIF(DEF_BLINK_RATE_250)
+
+# Example of specifying/defining variable preprocessor
+IF(BLINK_RATE)
+    ADD_DEFINITIONS(-DBLINK_RATE=${BLINK_RATE}ms)
+ENDIF(BLINK_RATE)
+
 include(${MBED_PATH}/tools/cmake/app.cmake)
 
 project(${APP_TARGET})

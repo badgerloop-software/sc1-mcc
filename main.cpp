@@ -6,18 +6,18 @@
 #include "mbed.h"
 #include "monitor.h"
 
+#if defined(BLINK_RATE_250)
+#define BLINKING_RATE     250ms
+#elif defined(BLINK_RATE)
+#define BLINKING_RATE     BLINK_RATE
+#else
 #define BLINKING_RATE     2000ms
+#endif
+
 // Main code. Should initialize devices and then transform into the CAN loop
 
 int main()
 {
-    // Initializes devices
-    //initGPIO(250ms);
-    //initAnalog(250ms);
-    //drive_initDrive();
-    //initCAN(125000);
-    //monitor_initMonitor(300ms);
-
     int iteration = 0;
 
 #ifdef LED1
