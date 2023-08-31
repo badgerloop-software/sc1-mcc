@@ -17,6 +17,7 @@ jobs:
     outputs:
       target: ${{ steps.get-dev-info.outputs.device }}
       ser_port: ${{ steps.get-dev-info.outputs.serial }}
+      flash_mntpt: ${{ steps.get-dev-info.outputs.mountpoint }}
 
     steps:
 # Added in case two jobs are scheduled to run in quick succession.
@@ -121,23 +122,33 @@ jobs:
 # TODO         echo "MBED_OS_REF=${{ env.local_mbedos_ref }}" >> "${{ vars.MBED_OS_REF }}"
 
 # Gets device info using `mbed-tools detect` and sets output needed for compiling and flashing
+# TODO Remove ls -l /media/ubuntu/ (or maybe put it and some other commands for debugging in the failure case)
+# TODO Use user id when getting mount point
      - name: Get Device Info
        id: get-dev-info
        run: |
          ls -l /media/ubuntu/
+         echo "USER returns $USER"
+         echo "whoami returns $(whoami)"
+         echo "id -u -n returns $(id -u -n)"
          detect_out=$(mbed-tools detect)
          device=$(echo "$detect_out" | grep -oE "NUCLEO_\\S*")
          serial=$(echo "$detect_out" | grep -oE "/dev/tty\\S*")
-         if [[ -z "$device" || -z "$serial" ]]; then
-           echo "Failed to detect target and/or serial port matching 'NUCLEO_*' and '/dev/tty*', respectively :hurtrealbad:" >> $GITHUB_STEP_SUMMARY
+         mountpoint=$(echo "$detect_out" | grep -oE "/media/\\S*")
+         if [[ -z "$device" || -z "$serial" || -z "$mountpoint" ]]; then
+           echo "Failed to detect target, serial port, and/or mount point matching 'NUCLEO_*', '/dev/tty*', and '/media/*', respectively :hurtrealbad:" >> $GITHUB_STEP_SUMMARY
            exit 1
          fi
          echo "device=$device" >> "$GITHUB_OUTPUT"
          echo "serial=$serial" >> "$GITHUB_OUTPUT"
-         echo "Found target '$device' connected to serial port '$serial' :relieved:" >> $GITHUB_STEP_SUMMARY
+         echo "mountpoint=$mountpoint" >> "$GITHUB_OUTPUT"
+         echo "Found target '$device' connected to serial port '$serial' with storage mounted to '$mountpoint' :relieved:" >> $GITHUB_STEP_SUMMARY
 
   compile-and-flash:
     needs: setup
+    env:
+      BUILD_PROFILE: develop
+      TOOLCHAIN: GCC_ARM
     runs-on:
       - self-hosted
 
@@ -145,14 +156,15 @@ jobs:
 # Using a step summary and symlink so that the flash status is shown in the job summary
      - name: Compile and Flash
        run: |
-         mbed-tools configure -t GCC_ARM -m ${{ needs.setup.outputs.target }}
-         cmake -S . -B cmake_build/${{ needs.setup.outputs.target }}/develop/GCC_ARM -DBLINK_RATE=500 -GNinja
-         cmake --build cmake_build/${{ needs.setup.outputs.target }}/develop/GCC_ARM
-         cp cmake_build/${{ needs.setup.outputs.target }}/develop/GCC_ARM/sc1-mcc.bin /media/ubuntu/MBED/ #TODO Use variables for these locations
+         mbed-tools configure -t ${{ env.TOOLCHAIN }} -m ${{ needs.setup.outputs.target }}
+         cmake -S . -B cmake_build/${{ needs.setup.outputs.target }}/${{ env.BUILD_PROFILE }}/${{ env.TOOLCHAIN }} -DBLINK_RATE=500 -GNinja
+         cmake --build cmake_build/${{ needs.setup.outputs.target }}/${{ env.BUILD_PROFILE }}/${{ env.TOOLCHAIN }}
+         cp cmake_build/${{ needs.setup.outputs.target }}/${{ env.BUILD_PROFILE }}/${{ env.TOOLCHAIN }}/sc1-mcc.bin ${{ needs.setup.outputs.flash_mntpt }}
          echo "Successfully flashed to ${{ needs.setup.outputs.target }} :v:" >> $GITHUB_STEP_SUMMARY
          ln -s "$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/flash_summary"
 #        mbed-tools compile -t GCC_ARM -m ${{ needs.setup.outputs.target }} --flash
 
+# TODO Shouldn't be needed now that we're building with cmake and flashing manually instead of using mbed-tools compile --flash
 # Once this job is finished, the "Complete runner" job will run, which involves running a script specified in
 # /path/to/actions-runner/.env. This script conditionally runs another script in the background that triggers
 # a reboot of the runner once the job is finished. You may be asking yourself why we're rebooting after every
