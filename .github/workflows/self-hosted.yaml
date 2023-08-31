@@ -122,21 +122,18 @@ jobs:
 # TODO         echo "MBED_OS_REF=${{ env.local_mbedos_ref }}" >> "${{ vars.MBED_OS_REF }}"
 
 # Gets device info using `mbed-tools detect` and sets output needed for compiling and flashing
-# TODO Remove ls -l /media/ubuntu/ (or maybe put it and some other commands for debugging in the failure case)
-# TODO Use user id when getting mount point
+# NOTE: Expecting '/mnt/$USER/' to be the base path for the mount point, as specified in the runner's ldm (https://github.com/LemonBoy/ldm) configuration, despite /media/[$USER/] typically being the base path for removable media
+# TODO Remove ls -l /mnt/$USER/ (or maybe put it and some other commands for debugging in the failure case)
      - name: Get Device Info
        id: get-dev-info
        run: |
-         ls -l /media/ubuntu/
-         echo "USER returns $USER"
-         echo "whoami returns $(whoami)"
-         echo "id -u -n returns $(id -u -n)"
+         ls -l /mnt/$USER/
          detect_out=$(mbed-tools detect)
          device=$(echo "$detect_out" | grep -oE "NUCLEO_\\S*")
          serial=$(echo "$detect_out" | grep -oE "/dev/tty\\S*")
-         mountpoint=$(echo "$detect_out" | grep -oE "/media/\\S*")
+         mountpoint=$(echo "$detect_out" | grep -oE "/mnt/$USER/\\S*")
          if [[ -z "$device" || -z "$serial" || -z "$mountpoint" ]]; then
-           echo "Failed to detect target, serial port, and/or mount point matching 'NUCLEO_*', '/dev/tty*', and '/media/*', respectively :hurtrealbad:" >> $GITHUB_STEP_SUMMARY
+           echo "Failed to detect target, serial port, and/or mount point matching 'NUCLEO_*', '/dev/tty*', and '/mnt/$USER/*', respectively :hurtrealbad:" >> $GITHUB_STEP_SUMMARY
            exit 1
          fi
          echo "device=$device" >> "$GITHUB_OUTPUT"
@@ -161,10 +158,10 @@ jobs:
          cmake --build cmake_build/${{ needs.setup.outputs.target }}/${{ env.BUILD_PROFILE }}/${{ env.TOOLCHAIN }}
          cp cmake_build/${{ needs.setup.outputs.target }}/${{ env.BUILD_PROFILE }}/${{ env.TOOLCHAIN }}/sc1-mcc.bin ${{ needs.setup.outputs.flash_mntpt }}
          echo "Successfully flashed to ${{ needs.setup.outputs.target }} :v:" >> $GITHUB_STEP_SUMMARY
-         ln -s "$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/flash_summary"
-#        mbed-tools compile -t GCC_ARM -m ${{ needs.setup.outputs.target }} --flash
+# TODO Not needed since we aren't rebooting:        ln -s "$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/flash_summary"
+# TODO Not needed since we are using cmake and cp:         mbed-tools compile -t GCC_ARM -m ${{ needs.setup.outputs.target }} --flash
 
-# TODO Shouldn't be needed now that we're building with cmake and flashing manually instead of using mbed-tools compile --flash
+# TODO Shouldn't be needed now that we're using ldm to automount/unmount the device: https://github.com/ARMmbed/greentea/issues/286#issuecomment-434749908
 # Once this job is finished, the "Complete runner" job will run, which involves running a script specified in
 # /path/to/actions-runner/.env. This script conditionally runs another script in the background that triggers
 # a reboot of the runner once the job is finished. You may be asking yourself why we're rebooting after every
