@@ -2,12 +2,19 @@ name: test-self-hosted
 
 on:
 # Doesn't work until this is merged to main, so it's useless here:  workflow_dispatch:
-  push:
-    branches:
-      - 'mbed-cli'
-#TODO  pull_request:
+#  push:
 #    branches:
-#      - 'main'
+#      - 'mbed-cli'
+  pull_request:
+    branches:
+      - 'main'
+
+# The cancel-in-progress concurrency option can only be specified at the workflow or job level, and job-level concurrency is ineffective when dealing with queued workflows.
+# Given that we don't want to cancel the workflow while fetching mbed-os libraries or flashing, the cancel-in-progress option is set to false to prevent canceling the
+# workflow at these times. However, this still prevents multiple identical queued workflows from piling up.
+concurrency:
+  group: ${{ github.event_name }}.${{ github.head_ref }}.${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   setup:
