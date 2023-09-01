@@ -27,11 +27,6 @@ jobs:
       flash_mntpt: ${{ steps.get-dev-info.outputs.mountpoint }}
 
     steps:
-# Added in case two jobs are scheduled to run in quick succession.
-# This will prevent the second job from being interrupted by a reset
-     - name: Clear Pending Shutdown
-       run: shutdown -c
-
      - name: Set Environment Variables
        run: |
          echo "MBED_OS_REF_LOCATION=$HOME/${{ github.repository }}/mbed-os-ref" >> "$GITHUB_ENV"
