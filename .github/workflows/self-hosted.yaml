@@ -157,7 +157,6 @@ jobs:
       - self-hosted
 
     steps:
-# Using a step summary and symlink so that the flash status is shown in the job summary
      - name: Compile and Flash
        run: |
          mbed-tools configure -t ${{ env.TOOLCHAIN }} -m ${{ needs.setup.outputs.target }}
@@ -165,15 +164,4 @@ jobs:
          cmake --build cmake_build/${{ needs.setup.outputs.target }}/${{ env.BUILD_PROFILE }}/${{ env.TOOLCHAIN }}
          cp cmake_build/${{ needs.setup.outputs.target }}/${{ env.BUILD_PROFILE }}/${{ env.TOOLCHAIN }}/sc1-mcc.bin ${{ needs.setup.outputs.flash_mntpt }}
          echo "Successfully flashed to ${{ needs.setup.outputs.target }} :v:" >> $GITHUB_STEP_SUMMARY
-# TODO Not needed since we aren't rebooting:        ln -s "$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/flash_summary"
-# TODO Not needed since we are using cmake and cp:         mbed-tools compile -t GCC_ARM -m ${{ needs.setup.outputs.target }} --flash
-
-# TODO Shouldn't be needed now that we're using ldm to automount/unmount the device: https://github.com/ARMmbed/greentea/issues/286#issuecomment-434749908
-# Once this job is finished, the "Complete runner" job will run, which involves running a script specified in
-# /path/to/actions-runner/.env. This script conditionally runs another script in the background that triggers
-# a reboot of the runner once the job is finished. You may be asking yourself why we're rebooting after every
-# flash. Well, it's because Mbed CLI 2 is unreliable and often fails to flash code to the board more than 3
-# consecutive times, and rebooting the host is the only reliable way to avoid this that we've found. Do I
-# hate it? Yes. Is it a shame to have to do something so janky? Yes. Am I going to put more effort towards
-# finding a different solution? Not until I absolutely have to because I've spent weeks working on it already.
 
