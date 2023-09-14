@@ -1,0 +1,3 @@
+[submodule "embedded-mbed"]
+	path = embedded
+	url = https://github.com/badgerloop-software/embedded-mbed
