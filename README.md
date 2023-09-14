@@ -21,32 +21,3 @@ To get started with Mbed Studio follow this quick guide
 1. Go to file, then import. 
 2. Paste the http github repo link in the url field.
 3. I strongly recommend having a single copy of Mbed OS that is linked to and shared between projects. To do this, clone an instance of it from [the official repo](https://github.com/ARMmbed/mbed-os/tree/mbed-os-6.15.1) and link to the folder.
-
-## Current Pin Usage. Check [MCC confluence page](https://badgerloop.atlassian.net/wiki/spaces/EL/pages/167378955/Motor+Controller+Controller+Rev+A+Design) for updates
-| Pin ID  | Type  | Usage   | Usage   | Type  | Pin ID|
-| :---:   | :---: | :---:   | :---:   | :---: | :---: |
-| PA9     | Dig   | Speed   |         |       | VIN   |
-| PA10    | Dig   | Power   |         |       | GND   |
-| NRST    |       |         |         |       | NRST  |
-| GND     |       |         |         |       | 5V    |
-| PA12    | Dig   | CANTX   |         | Alg   | PA2   |
-| PB0     | Dig   | CrzA    |         | Alg   | PA7   |
-| PB7     | Dig   | CrzB    |         | Alg   | PA6   |
-| PB6     | Dig   | Crz Set | Acc Out | Alg   | PA5   |
-| PB1     | Dig   | Crz Rst |         | Alg   | PA4   |
-| D7      | Dig   | NOREAD  |         | Alg   | PA3   |
-| D8      | Dig   | NOREAD  | Brk Sig | Alg   | PA1   |
-| PA8     | Dig   | Eco     | Acc Sig | Alg   | PA0   |
-| PA11    | Dig   | CANRX   |         |       | AREF  |
-| PB5     | Dig   | MC Stat |         |       | 3V3   |
-| PB4     | Dig   | Brake   | Dir     | Dig   | PB3   |
-
-
-## CAN IDs
-CAN Offset is 0x200 for this board
-| Signal Name | CAN ID |
-| :---------: | :----: |
-| RPM         | 0x200  |
-| GPIO Bitmap | 0x201  |
-| Accel Pedal | 0x202  |
-| Brake Pedal | 0x203  |
