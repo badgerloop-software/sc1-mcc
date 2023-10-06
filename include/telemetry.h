@@ -17,10 +17,14 @@ enum class CRUZ_MODE {
   POWER,
 };
 
+
 //TODO: Tune values based on testing
-#define BRAKE_THRESHOLD 69.0
+#define BRAKE_THRESHOLD_CRUZ_STOP 0.1 // used to go out of Cruise Control. NOT the final value
 #define INCREMENT_RPM   21
 #define INCREMENT_POWER 420
+
+#define FORWARD_VALUE 1
+#define REVERSE_VALUE 0
 
 // Variables to store readings
 extern volatile struct Digital_Data digital_data;
