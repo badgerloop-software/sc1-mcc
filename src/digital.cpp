@@ -10,14 +10,18 @@ DigitalIn resetCruiseControlPin(D6);
 DigitalIn cruisePowerModePin(D3);
 DigitalIn cruiseSpeedModePin(D4);
 DigitalIn motorPowerPin(D12);
-DigitalIn forwardAndReversePin(D8);
+DigitalIn directionInputPin(D8);
 DigitalIn ecoModePin(D11);
+
+// assign digital output to the correct pins
+DigitalOut directionOutputPin(D7);
 
 
 // storing every digital data inside a struct to reduce the memory
 volatile struct Digital_Data digital_data = {};
 volatile CRUZ_MODE cruzMode = CRUZ_MODE::OFF;
 volatile float motorSpeedSetpoint = 0;
+
 
 void readCruiseControl() {
   // read set cruise control input
@@ -49,7 +53,7 @@ void readCruiseControl() {
 
   // if mode is off or break is pressed, cruise control is off (and can't be
   // turn on)
-  if (cruzMode == CRUZ_MODE::OFF || brakeStatus > BRAKE_THRESHOLD) {
+  if (cruzMode == CRUZ_MODE::OFF || brakeStatus > BRAKE_THRESHOLD_CRUZ_STOP) {
     digital_data.cruiseEnabled = false;
     return;
   }
@@ -83,7 +87,7 @@ void readCruiseControl() {
 void readMotorPower() { digital_data.motorPower = motorPowerPin.read(); }
 
 // read forward and reverse input
-void readForwardAndReverse() { digital_data.forwardAndReverse = forwardAndReversePin.read(); }
+void readForwardAndReverse() { digital_data.forwardAndReverse = directionInputPin.read(); }
 
 // read eco mode input
 void readEcoMode() { digital_data.ecoMode = ecoModePin.read(); }
@@ -99,4 +103,9 @@ void readDigital() {
 // Set up polling of digital IO at specified rate
 void initDigital(std::chrono::microseconds readSignalPeriod) {
   readDigitalDelay.attach(readDigital, readSignalPeriod);
+}
+
+// Update value of motor direction output
+void setDirectionOutput(uint8_t value) {
+    directionOutputPin.write((int)value);
 }
