@@ -11,7 +11,6 @@ DigitalIn cruiseSpeedModePin(D4);
 DigitalIn speedPin(D1);
 DigitalIn motorPowerPin(D12);
 DigitalIn forwardAndReversePin(D8);
-DigitalIn forwardAndReverseControlPin(D7);
 DigitalIn ecoModePin(D11);
 
 // storing every digital data inside a struct to reduce the memory
@@ -52,12 +51,6 @@ void readForwardAndReverse(){
     digital_data.forwardAndReverse = forwardAndReversePin.read();
 }
 
-void readForwardAndReverseControl(){
-    digital_data.controlforwardAndReverse = forwardAndReverseControlPin.read();
-}
-// read control forward and reverse input
-
-
 // read eco mode input
 void readEcoMode(){
     digital_data.ecoMode = ecoModePin.read();
@@ -68,19 +61,14 @@ void readDigital(){
     readSetCruiseControl();
     readResetCruiseControl();
     readCruisePowerMode();
-    readCruisePowerMode();
     readCruiseSpeedMode();
     readSpeed();
     readMotorPower();
     readForwardAndReverse();
-    readForwardAndReverseControl();
     readEcoMode();
 }
 
-
-
-
-// repeatedly call the function with the given parameter
+// Set up polling of digital IO at specified rate
 void initDigital(std::chrono::microseconds readSignalPeriod) {
-  readDigitalDelay.attach(&readDigital, readSignalPeriod);
+  readDigitalDelay.attach(readDigital, readSignalPeriod);
 }

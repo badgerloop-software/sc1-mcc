@@ -9,12 +9,12 @@
 int main()
 {
     // read all analog inputs every 0.01 second
-    initAnalog((std::chrono::microseconds)10000);
+    initAnalog(10000us);
 
     // read all digital inputs every 0.01 second
-    initDigital((std::chrono::microseconds)10000);
+    initDigital(10000us);
 
     while(true){
-
+        
     }
 }
