@@ -1,3 +1,3 @@
-[submodule "embedded-mbed"]
+[submodule "embedded"]
 	path = embedded
-	url = https://github.com/badgerloop-software/embedded-mbed
+	url = git@github.com:badgerloop-software/embedded-mbed.git
