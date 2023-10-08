@@ -33,7 +33,7 @@ void readBrakeStatus(){
 }
 
 // read regeative braking input
-void readRegeativeBraking(){
+void readRegenerativeBraking(){
     regenerativeBraking = regenerativeBrakingPin.read_voltage();
 }
 
@@ -41,7 +41,7 @@ void readRegeativeBraking(){
 void readAnalog(){
     readAcceleratorPedal();
     readBrakeStatus();
-    readRegeativeBraking();
+    readRegenerativeBraking();
 }
 
 // Set up polling of analog IO at specified rate
