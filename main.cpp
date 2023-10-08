@@ -2,19 +2,25 @@
 #include "telemetry.h"
 #include "digital.h"
 #include "analog.h"
+#include "speed.h"
 
-// Main code. Should initialize devices and then transform into the CAN loop
+#define SPEED_CALC_INTERVAL 10ms
+#define ANALOG_CALC_INTERVAL 10000us
+#define DIGITAL_CALC_INTERVAL 10000us
 
 
 int main()
 {
+    // read RPM and MPH every 0.01 second
+    startSpeedCalculation(SPEED_CALC_INTERVAL);
+
     // read all analog inputs every 0.01 second
-    initAnalog(10000us);
+    initAnalog(ANALOG_CALC_INTERVAL);
 
     // read all digital inputs every 0.01 second
-    initDigital(10000us);
+    initDigital(DIGITAL_CALC_INTERVAL);
 
-    while(true){
-        
+    while(true) {
+
     }
 }
