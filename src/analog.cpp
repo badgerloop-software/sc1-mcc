@@ -45,6 +45,7 @@ void readAnalog(){
 
 // Poll analog inputs at specified rate
 void initAnalog(std::chrono::microseconds readSignalPeriod) {
+
     acceleratorPedalPin.set_reference_voltage(refrence_voltage);
     acceleratorSignalPin.set_reference_voltage(refrence_voltage);
     brakeStatusPin.set_reference_voltage(refrence_voltage);
