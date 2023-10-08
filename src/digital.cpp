@@ -8,13 +8,14 @@ DigitalIn setCruiseControlPin(D5);
 DigitalIn resetCruiseControlPin(D6);
 DigitalIn cruisePowerModePin(D3);
 DigitalIn cruiseSpeedModePin(D4);
-DigitalIn speedPin(D1);
 DigitalIn motorPowerPin(D12);
 DigitalIn forwardAndReversePin(D8);
 DigitalIn ecoModePin(D11);
 
+
 // storing every digital data inside a struct to reduce the memory
 volatile struct Digital_Data digital_data = {};
+
 
 // read set cruise control input
 void readSetCruiseControl(){
@@ -34,11 +35,6 @@ void readCruisePowerMode(){
 // read cruise speed mode input
 void readCruiseSpeedMode(){
     digital_data.cruiseSpeedMode = cruiseSpeedModePin.read();
-}
-
-// read speed input
-void readSpeed(){
-    digital_data.speed = speedPin.read();
 }
 
 // read motor power input
@@ -62,7 +58,6 @@ void readDigital(){
     readResetCruiseControl();
     readCruisePowerMode();
     readCruiseSpeedMode();
-    readSpeed();
     readMotorPower();
     readForwardAndReverse();
     readEcoMode();
