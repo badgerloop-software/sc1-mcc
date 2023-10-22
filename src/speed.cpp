@@ -12,7 +12,7 @@ volatile float mph = 0;
 // Track past pulses for precision
 static vector<unsigned int> previousPulses;
 // How often speed computation happens
-static std::chrono::milliseconds speedInterval = 0ms;
+static unsigned int speedInterval = 0;
 // Number of PWM pulses since last calculation
 static volatile unsigned int speedPulses = 0;
 
@@ -40,16 +40,18 @@ void calculateSpeed()
 {
     // Variable to track array update position
     static int calculationCounter = 0;
+    static unsigned int totalTicks = 0;
 
     // Replace the oldest remembered pulse count in the vector with a new one
+    totalTicks = totalTicks - previousPulses.at(calculationCounter % previousPulses.size()) + speedPulses;
     previousPulses.at(calculationCounter % previousPulses.size()) = speedPulses;
     speedPulses = 0;
     calculationCounter ++;
 
     // Calculate rpm based the total number of pulses in the previousPulses vector
-    float revolutions = sum(previousPulses) / 48.0f;
-    rpm = revolutions / (speedInterval.count() * previousPulses.size() / 1000.0f / 60.0f);
-    mph = rpm * WHEEL_CIRCUMFERENCE / 12.0f / 5280.0f * 60;
+    float revolutions = totalTicks * 0.020833333; // 1 / 48
+    rpm = revolutions / (speedInterval * previousPulses.size() * 0.0000166666666); // 1 / 1000 / 60
+    mph = rpm * WHEEL_CIRCUMFERENCE * 0.00094696; // 1 / 12 / 5280 * 60
 
 
     /*
@@ -65,7 +67,7 @@ void calculateSpeed()
 // Starts repeating rpm calculation every interval milliseconds
 void startSpeedCalculation(std::chrono::milliseconds interval)
 {
-    speedInterval = interval;
+    speedInterval = interval.count();
 
     // Attach the address of the increment function to the rising edge of the speed pin
     speedPin.rise(&increment);
@@ -74,5 +76,5 @@ void startSpeedCalculation(std::chrono::milliseconds interval)
     rpmTicker.attach(calculateSpeed, interval);
 
     // Set size of previousPulses such that we remember appox 1250 ms of previous pulses
-    previousPulses.resize(1250 / interval.count(), 0);
+    previousPulses.resize(1250 / speedInterval, 0);
 }

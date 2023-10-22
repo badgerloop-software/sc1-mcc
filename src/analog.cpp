@@ -25,7 +25,8 @@ AnalogInMutexless brakeStatusPin(A1);
 AnalogInMutexless regenerativeBrakingPin(A4);
 
 // assign analog outputs to the correct pins
-AnalogOutMutexless motorAccelerationOutput(A3);
+//AnalogOutMutexless motorAccelerationOutput(A3);
+PwmOut motorAccelerationOutput(A3);
 
 // initialize the analog inputs' readings
 volatile float acceleratorPedal = 0;
@@ -34,8 +35,15 @@ volatile float regenerativeBraking = 0;
 
 
 // read accelerator pedal input
-void readAcceleratorPedal(){ 
-    acceleratorPedal = acceleratorPedalPin.read_voltage();
+void readAcceleratorPedal(){
+    float value = (acceleratorPedalPin.read() - PEDAL_ON_THRESHOLD) / PEDAL_RANGE;
+    if (value < 0) {
+        acceleratorPedal = 0;
+    } else if (value > 1) {
+        acceleratorPedal = 1;
+    } else {
+        acceleratorPedal = value;
+    }    
 }
 
 // read brake status input
@@ -66,5 +74,5 @@ void initAnalog(std::chrono::microseconds readSignalPeriod) {
 
 // set the value of the acc_out pin
 void setAccOut(float acc) {
-    motorAccelerationOutput.write(acc);
+    motorAccelerationOutput.write(1-acc);
 }

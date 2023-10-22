@@ -1,13 +1,18 @@
 #include "motor_control.h"
 
-// TODO: Update with Serial signal
-static bool parkBrake = 1;
-
 
 // set default state to OFF
-MCCState::MCCState(std::chrono::microseconds ticker_delay) : state(MCCStates::OFF) {
+MCCState::MCCState(std::chrono::microseconds ticker_delay) : state(MCCStates::OFF), 
+        power_PID(POWER_D_PARAM, POWER_I_PARAM, POWER_P_PARAM, std::chrono::duration<float>(ticker_delay).count()), 
+        speed_PID(SPEED_P_PARAM, SPEED_I_PARAM, SPEED_D_PARAM, std::chrono::duration<float>(ticker_delay).count()) {
     // initialize Ticker to run the transition method every ticker_delay seconds
     state_updater.attach(callback(this, &MCCState::transition), ticker_delay);
+    // set limits of inputs and outputs
+    power_PID.setInputLimits(MIN_POWER, MAX_POWER);
+    power_PID.setOutputLimits(MIN_OUT, MAX_OUT);
+    speed_PID.setInputLimits(MIN_RPM, MAX_RPM);
+    speed_PID.setOutputLimits(MIN_OUT, MAX_OUT);
+    curr_PID = &power_PID;
 }
 
 MCCState::~MCCState() {
@@ -17,7 +22,7 @@ MCCState::~MCCState() {
 void MCCState::transition() {
     switch (state) {
         case MCCStates::PARK:
-            if (parkBrake) {
+            if (!parkBrake) {
                 state = MCCStates::IDLE;
                 break;
             }
@@ -65,9 +70,13 @@ void MCCState::transition() {
             if (rpm < MIN_MOVING_SPEED) {
                 state = MCCStates::IDLE;
                 break;
-            }
-            if (cruzMode != CRUZ_MODE::OFF) {
-                state = MCCStates::CRUISE;
+            } else if (cruzMode == CRUZ_MODE::POWER && digital_data.cruiseEnabled) {
+                curr_PID = &power_PID;
+                state = MCCStates::CRUISE_POWER;
+                break;
+            } else if (cruzMode == CRUZ_MODE::SPEED && digital_data.cruiseEnabled) {
+                curr_PID = &speed_PID;
+                state = MCCStates::CRUISE_SPEED;
                 break;
             }
             // OUTPUT: set acc_out pin based on acc_in from the pedal
@@ -76,11 +85,36 @@ void MCCState::transition() {
             setDirectionOutput(FORWARD_VALUE);
             break;
 
-        case MCCStates::CRUISE:
+        case MCCStates::CRUISE_POWER:
             if (cruzMode == CRUZ_MODE::OFF) {
                 state = MCCStates::FORWARD;
                 break;
+            } else if (cruzMode == CRUZ_MODE::SPEED) {
+                curr_PID = &speed_PID;
+                state = MCCStates::CRUISE_SPEED;
+                break;
             }
+            // TODO: not enough stuff for power right now (10/22)
+            // get current motor power
+            // set setPoint to target power
+            // setAccOut(compute());
+            break;
+
+        case MCCStates::CRUISE_SPEED:
+            if (cruzMode == CRUZ_MODE::OFF) {
+                state = MCCStates::FORWARD;
+                break;
+            } else if (cruzMode == CRUZ_MODE::POWER) {
+                curr_PID = &power_PID;
+                state = MCCStates::CRUISE_POWER;
+                break;
+            }
+            // set current rpm for speed_PID
+            speed_PID.setProcessValue(rpm);
+            // set target for speed_PID
+            speed_PID.setSetPoint(motorSpeedSetpoint);
+            // set accelerator 
+            setAccOut(speed_PID.compute());
             break;
 
         // OFF state as our default
