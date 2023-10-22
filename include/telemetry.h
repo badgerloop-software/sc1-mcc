@@ -39,4 +39,7 @@ extern volatile float regenerativeBraking;
 
 extern volatile float motorSpeedSetpoint;
 
+// Serial signals
+extern volatile bool parkBrake;
+
 #endif
