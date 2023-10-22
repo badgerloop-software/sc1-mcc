@@ -6,3 +6,4 @@ mbed-os
 BUILD
 
 PID
+embedded/mbed-os
