@@ -4,6 +4,7 @@
 #include "analog.h"
 #include "speed.h"
 #include "motor_control.h"
+#include "motorError.h"
 
 #define SPEED_CALC_INTERVAL 10ms
 #define ANALOG_CALC_INTERVAL 10000us
@@ -27,7 +28,12 @@ int main()
     // initialize state machine
     MCCState state_machine(SM_TRANSITION_INTERVAL);
 
-    while (true) {
+    startErrorInterpretation();
 
+    while(true)
+    {
+        printf("\nError Type: %s", errorString(errorType));
+
+        rtos::ThisThread::sleep_for(1000ms);
     }
 }
