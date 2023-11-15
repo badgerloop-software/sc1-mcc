@@ -89,8 +89,8 @@ int main()
         printf("motorSpeedSetpoint: %f\n", motorSpeedSetpoint);
         printf("parkingBrake: %s\n", parkBrake ? "On" : "Off");
         canBus.send_mcc_data();
-        canBus.doRead(1000ms);
+        canBus.doRead(10ms);
 
-        wait_us(1000000);
+        //wait_us(1000000);
     }
 }
