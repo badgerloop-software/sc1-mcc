@@ -96,8 +96,6 @@ int main()
         printf("Motor Error: %s", errorString(errorType));
 
         canBus.send_mcc_data();
-        canBus.runQueue(1000ms);
-
-        wait_us(1000000);
+        canBus.runQueue(10ms);
     }
 }
