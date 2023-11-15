@@ -20,24 +20,24 @@ void CANMCC::readHandler(int messageID, SharedPtr<unsigned char> data, int lengt
 
 void CANMCC::send_mcc_data() {
     // Digital signals
-    this->sendMessage(0x200, (void*)&digital_data, 1);
-    this->sendMessage(0x201, (void*)&cruzMode, 1);
+    this->sendMessage(0x200, (void*)&digital_data, 1, 1ms);
+    this->sendMessage(0x201, (void*)&cruzMode, 1, 1ms);
     char charHelper = (char)this->stateMachine->get_state();
-    this->sendMessage(0x202, &charHelper, 1);
+    this->sendMessage(0x202, &charHelper, 1, 1ms);
     
-    wait_us(8000);
+    //wait_us(8000);
     // send floats
     float float_helper = acceleratorPedal;
-    this->sendMessage(0x203, &float_helper, 4);
+    this->sendMessage(0x203, &float_helper, 4, 1ms);
     float_helper = brakeStatus;
-    this->sendMessage(0x204, &float_helper, 4);
+    this->sendMessage(0x204, &float_helper, 4, 1ms);
     float_helper = regenerativeBraking;
-    this->sendMessage(0x205, &float_helper, 4);
-    wait_us(8000);
+    this->sendMessage(0x205, &float_helper, 4, 1ms);
+    //wait_us(8000);
     float_helper = motorSpeedSetpoint;
-    this->sendMessage(0x206, &float_helper, 4);
+    this->sendMessage(0x206, &float_helper, 4, 1ms);
     float_helper = rpm;
-    this->sendMessage(0x207, &float_helper, 4);
+    this->sendMessage(0x207, &float_helper, 4, 1ms);
     float_helper = mph;
-    this->sendMessage(0x208, &float_helper, 4);
+    this->sendMessage(0x208, &float_helper, 4, 1ms);
 }
