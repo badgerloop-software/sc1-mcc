@@ -1,6 +1,7 @@
 #ifndef __ANALOG_H__
 #define __ANALOG_H__
 
+#include "mutexless_analog.h"
 #include "telemetry.h"
 
 // defining the reference voltage for analog inputs

@@ -3,22 +3,6 @@
 // initialize Ticker to setup a recurring interrupt to repeatedly call the function at a specified rate
 Ticker readAnalogDelay;
 
-// Disable mutex usage of analog read for interrupt polling
-// because mutex cannot be used in ISR
-class AnalogInMutexless : public AnalogIn {
-public:
-    AnalogInMutexless(PinName pin) : AnalogIn(pin) { }
-    virtual void lock() { }
-    virtual void unlock() { }
-};
-
-class AnalogOutMutexless : public AnalogOut {
-    public:
-        AnalogOutMutexless(PinName pin) : AnalogOut(pin) { }
-        virtual void lock() { }
-        virtual void unlock() { }
-};
-
 // assign analog inputs to the correct pins
 AnalogInMutexless acceleratorPedalPin(A6);
 AnalogInMutexless brakeStatusPin(A1);
