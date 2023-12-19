@@ -3,7 +3,7 @@
 
 Ticker rpmTicker;
 
-InterruptIn speedPin(D1);
+InterruptIn speedPin(PA_1);
 
 
 volatile float rpm = 0;
