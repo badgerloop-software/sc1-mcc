@@ -5,16 +5,16 @@
 Ticker readDigitalDelay;
 
 // assign digital input to the correct pins
-DigitalIn setCruiseControlPin(D5);
-DigitalIn resetCruiseControlPin(D6);
-DigitalIn cruisePowerModePin(D3);
-DigitalIn cruiseSpeedModePin(D4);
-DigitalIn motorPowerPin(D12);
-DigitalIn directionInputPin(D8);
-DigitalIn ecoModePin(D11);
+DigitalIn setCruiseControlPin(PB_5);
+DigitalIn resetCruiseControlPin(PB_4);
+DigitalIn cruisePowerModePin(PB_6);
+DigitalIn cruiseSpeedModePin(PB_7);
+DigitalIn motorPowerPin(PA_0);
+DigitalIn directionInputPin(PA_5);
+DigitalIn ecoModePin(PA_7);
 
 // assign digital output to the correct pins
-DigitalOut directionOutputPin(D7);
+DigitalOut directionOutputPin(PA_3);
 
 
 // storing every digital data inside a struct to reduce the memory
