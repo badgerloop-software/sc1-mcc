@@ -1,5 +1,6 @@
 #include "motor_control.h"
 
+volatile MCCStates mccState = MCCStates::OFF;
 
 // set default state to OFF
 MCCState::MCCState(std::chrono::microseconds ticker_delay) : state(MCCStates::OFF), 
@@ -22,9 +23,8 @@ MCCState::~MCCState() {
 void MCCState::transition() {
     switch (state) {
         case MCCStates::PARK:
-            if (!parkBrake) {
+            if (!digital_data.brakeStatus) {
                 state = MCCStates::IDLE;
-                break;
             }
             // OUTPUT: make sure the motor isn't spinning when it's in PARK
             setAccOut(0.0);
@@ -36,21 +36,17 @@ void MCCState::transition() {
             setAccOut(acceleratorPedal);
             setDirectionOutput(digital_data.forwardAndReverse);
 
-            // park if brake is pressed and parking brake is set
-            if (parkBrake) {
-                state = MCCStates::PARK;
-                break;
-            }
-            // motor is spinning
+            // car moving fast, transition to locked direction state
             if (rpm >= MIN_MOVING_SPEED) {
-                // true = forward, false = reverse
-                if (digital_data.forwardAndReverse) {
+                if (digital_data.forwardAndReverse == FORWARD_VALUE) {
                     state = MCCStates::FORWARD;
-                    break;
                 } else {
                     state = MCCStates::REVERSE;
-                    break;
                 }
+
+            // park if brake is pressed and parking brake is set
+            } else if (digital_data.brakeStatus) {
+                state = MCCStates::PARK;
             }
             break;
 
@@ -66,19 +62,19 @@ void MCCState::transition() {
             break;
 
         case MCCStates::FORWARD:
-            // make sure we are stopped and pressing brake before transitioning to IDLE
             if (rpm < MIN_MOVING_SPEED) {
                 state = MCCStates::IDLE;
-                break;
-            } else if (cruzMode == CRUZ_MODE::POWER && digital_data.cruiseEnabled) {
-                curr_PID = &power_PID;
-                state = MCCStates::CRUISE_POWER;
-                break;
-            } else if (cruzMode == CRUZ_MODE::SPEED && digital_data.cruiseEnabled) {
-                curr_PID = &speed_PID;
-                state = MCCStates::CRUISE_SPEED;
-                break;
+
+            } else if (digital_data.cruiseEnabled) {
+                if (cruzMode == CRUZ_MODE::POWER) {
+                    curr_PID = &power_PID;
+                    state = MCCStates::CRUISE_POWER;
+                } else if (cruzMode == CRUZ_MODE::SPEED) {
+                    curr_PID = &speed_PID;
+                    state = MCCStates::CRUISE_SPEED;
+                }
             }
+            
             // OUTPUT: set acc_out pin based on acc_in from the pedal
             setAccOut(acceleratorPedal);
             // OUTPUT: set fr_out to forward.
@@ -125,24 +121,30 @@ void MCCState::transition() {
             }
             // OUTPUT: make sure the motor isn't spinning when it's OFF
             setAccOut(0.0);
+            // Set to known state since it is our default
+            state = MCCStates::OFF;
             break;
     }
+
+    // STATE MACHINE OVERRIDES AND SAFETY CHECKS
 
     // use if, else if because we should only switch to 1 state.
     // put higher priority checks up top.
     if (!digital_data.motorPower) {
         // the motor is off, so go into OFF state
         state = MCCStates::OFF;
-    } else if (parkBrake) {
+        setAccOut(0.0);
+    } else if (digital_data.brakeStatus) {
         state = MCCStates::PARK;
         setAccOut(0.0);
     }
 
     // set motor output to 0 if both brake and pedal are being pressed
-    // use 0.1 as the threshold to give it a bit of leeway
-    if (brakeStatus > 0.1 && acceleratorPedal > 0.1) {
+    if (digital_data.brakeStatus) {
         setAccOut(0.0);
     }
+
+    mccState = this->state;
 }
 
 // returns the current state of the state machine

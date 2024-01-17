@@ -5,16 +5,18 @@
 Ticker readDigitalDelay;
 
 // assign digital input to the correct pins
-DigitalIn setCruiseControlPin(PB_5);
-DigitalIn resetCruiseControlPin(PB_4);
+DigitalIn setCruiseControlPin(PB_4);
+DigitalIn resetCruiseControlPin(PB_5);
 DigitalIn cruisePowerModePin(PB_6);
 DigitalIn cruiseSpeedModePin(PB_7);
 DigitalIn motorPowerPin(PA_0);
-DigitalIn directionInputPin(PA_5);
-DigitalIn ecoModePin(PA_7);
+DigitalIn directionInputPin(PA_7);
+DigitalIn ecoModePin(PA_5);
+DigitalIn brakeStatusPin(PA_8);
 
 // assign digital output to the correct pins
 DigitalOut directionOutputPin(PA_3);
+DigitalOut brakeLEDOutputPin(PF_1);
 
 
 // storing every digital data inside a struct to reduce the memory
@@ -51,9 +53,9 @@ void readCruiseControl() {
     cruzMode = CRUZ_MODE::OFF;
   }
 
-  // if mode is off or break is pressed, cruise control is off (and can't be
+  // if mode is off or brake is pressed, cruise control is off (and can't be
   // turn on)
-  if (cruzMode == CRUZ_MODE::OFF || brakeStatus > BRAKE_THRESHOLD_CRUZ_STOP) {
+  if (cruzMode == CRUZ_MODE::OFF || digital_data.brakeStatus) {
     digital_data.cruiseEnabled = false;
     return;
   }
@@ -92,12 +94,16 @@ void readForwardAndReverse() { digital_data.forwardAndReverse = directionInputPi
 // read eco mode input
 void readEcoMode() { digital_data.ecoMode = ecoModePin.read(); }
 
+// read hand/foot brake status
+void readBrakeStatus() { digital_data.brakeStatus = brakeStatusPin.read(); }
+
 // read all the digital inputs
 void readDigital() {
   readCruiseControl();
   readMotorPower();
   readForwardAndReverse();
   readEcoMode();
+  readBrakeStatus();
 }
 
 // Set up polling of digital IO at specified rate
@@ -108,4 +114,9 @@ void initDigital(std::chrono::microseconds readSignalPeriod) {
 // Update value of motor direction output
 void setDirectionOutput(uint8_t value) {
     directionOutputPin.write((int)value);
+}
+
+// Set value of brake light output
+void setBrakeLEDOutput(uint8_t value) {
+    brakeLEDOutputPin.write((int)value);
 }

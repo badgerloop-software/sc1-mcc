@@ -9,8 +9,6 @@
 // The time without pulses after which the error type will be reset as None
 #define RESET_DELAY 3000ms
 
-enum ErrorType {None, OverCurrent, HallSensorFault, MotorLocked, SensorFault1, SensorFault2, HighBatteryVoltage, ControllerOverheat, Unknown};
-extern volatile ErrorType errorType;
 
 // Start the motor error interpretation by acting on each rising edge of the motor error pin
 void startErrorInterpretation();

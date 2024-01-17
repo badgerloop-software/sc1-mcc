@@ -5,7 +5,6 @@ Ticker readAnalogDelay;
 
 // assign analog inputs to the correct pins
 AnalogInMutexless acceleratorPedalPin(PB_0);
-AnalogInMutexless brakeStatusPin(PA_8);
 AnalogInMutexless regenerativeBrakingInputPin(PB_1);
 
 // assign analog outputs to the correct pins
@@ -15,7 +14,6 @@ AnalogOutMutexless regenerativeBrakingOutputPin(PA_6);
 
 // initialize the analog inputs' readings
 volatile float acceleratorPedal = 0;
-volatile float brakeStatus = 0;
 volatile float regenerativeBraking = 0;
 
 
@@ -31,10 +29,6 @@ void readAcceleratorPedal(){
     }    
 }
 
-// read brake status input
-void readBrakeStatus(){
-    brakeStatus = brakeStatusPin.read_voltage();
-}
 
 // read regeative braking input
 void readRegenerativeBrakingInput(){
@@ -44,14 +38,12 @@ void readRegenerativeBrakingInput(){
 // read all analog input
 void readAnalog(){
     readAcceleratorPedal();
-    readBrakeStatus();
     readRegenerativeBrakingInput();
 }
 
 // Set up polling of analog IO at specified rate
 void initAnalog(std::chrono::microseconds readSignalPeriod) {
     acceleratorPedalPin.set_reference_voltage(refrence_voltage);
-    brakeStatusPin.set_reference_voltage(refrence_voltage);
     regenerativeBrakingInputPin.set_reference_voltage(refrence_voltage);
 
     readAnalogDelay.attach(readAnalog, readSignalPeriod);
