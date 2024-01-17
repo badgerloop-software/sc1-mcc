@@ -1,9 +1,9 @@
 #include "mbed.h"
 #include "analog.h"
-#include "canmcc.h"
+#include "can_mcc.h"
 #include "digital.h"
 #include "motor_control.h"
-#include "motorError.h"
+#include "motor_error.h"
 #include "speed.h"
 #include "telemetry.h"
 
@@ -39,7 +39,7 @@ int main()
     // error LED reading
     startErrorInterpretation();
 
-    CANMCC canBus(CAN_RX, CAN_TX, &state_machine);
+    CANMCC canBus(CAN_RX, CAN_TX);
 
 
     while(true){
@@ -75,10 +75,10 @@ int main()
         // inputs
         printf("INPUTS-------------------------------\n");
         printf("Motor Power: %s\n", digital_data.motorPower ? "On" : "Off");
-        printf("Forward and Reverse: %s\n", digital_data.forwardAndReverse ? "Forward" : "Reverse");
+        printf("Forward and Reverse: %s\n", digital_data.forwardAndReverse ? "Reverse" : "Forward");
         printf("RPM: %f\n", rpm);
         printf("MPH: %f\n", mph);
-        printf("Brake Status: %f\n", brakeStatus);
+        printf("Foot/Park Brake: %s\n", digital_data.brakeStatus ? "On" : "Off");
         printf("acceleratorPedal: %f\n", acceleratorPedal);
         switch(cruzMode) {
             case CRUZ_MODE::OFF :
@@ -92,8 +92,7 @@ int main()
                 break;
         }
         printf("motorSpeedSetpoint: %f\n", motorSpeedSetpoint);
-        printf("parkingBrake: %s\n", parkBrake ? "On" : "Off");
-
+        printf("parkingBrake: %s\n", digital_data.brakeStatus ? "On" : "Off");
         printf("Motor Error: %s", errorString(errorType));
 
         canBus.send_mcc_data();

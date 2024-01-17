@@ -29,16 +29,6 @@
 #define MIN_OUT 0.0
 #define MAX_OUT 1.0
 
-enum class MCCStates{
-    OFF,
-    PARK,
-    IDLE,
-    FORWARD,
-    REVERSE,
-    CRUISE_POWER,
-    CRUISE_SPEED
-};
-
 class MCCState {
     private:
         MCCStates state;
@@ -54,8 +44,6 @@ class MCCState {
         MCCStates get_state();
 
         // cruise control variables
-        float target_speed;
-        float target_power;
         PID *curr_PID;
         PID power_PID, speed_PID;
 };

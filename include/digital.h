@@ -12,4 +12,7 @@ void initDigital(std::chrono::microseconds readSignalPeriod);
 // Sets value of direction (forward/reverse) output to motor
 void setDirectionOutput(uint8_t value);
 
+// Turns on/off brake light 
+void setBrakeLEDOutput(uint8_t value);
+
 #endif

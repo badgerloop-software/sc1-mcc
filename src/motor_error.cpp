@@ -1,4 +1,4 @@
-#include "motorError.h"
+#include "motor_error.h"
 
 Timeout evaluationTimeout;
 Timeout resetTimeout;
