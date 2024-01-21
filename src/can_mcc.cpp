@@ -1,13 +1,11 @@
 #include "can_mcc.h"
 
-volatile bool parkBrake = false;
 
 CANMCC::CANMCC(PinName rd, PinName td, int frequency): CANManager(rd, td, frequency) {}
 
 void CANMCC::readHandler(int messageID, SharedPtr<unsigned char> data, int length) {
 
 }
-
 
 void CANMCC::send_mcc_data() {
     // Digital signals
