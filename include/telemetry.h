@@ -61,4 +61,6 @@ extern volatile float regenerativeBraking;
 
 extern volatile float motorSpeedSetpoint;
 
+extern volatile bool prk_brk;
+
 #endif

@@ -10,7 +10,7 @@ AnalogInMutexless regenerativeBrakingInputPin(PB_1);
 // assign analog outputs to the correct pins
 //AnalogOutMutexless motorAccelerationOutput(A3);
 PwmOut motorAccelerationOutput(PA_4);
-AnalogOutMutexless regenerativeBrakingOutputPin(PA_6);
+PwmOut regenerativeBrakingOutputPin(PA_6);
 
 // initialize the analog inputs' readings
 volatile float acceleratorPedal = 0;
@@ -29,16 +29,33 @@ void readAcceleratorPedal(){
     }    
 }
 
-
-// read regeative braking input
+// read regenative braking input
 void readRegenerativeBrakingInput(){
-    regenerativeBraking = regenerativeBrakingInputPin.read_voltage();
+    float value = (regenerativeBrakingInputPin.read() - REGEN_ON_THRESHOLD) / REGEN_RANGE;
+    if (value < 0) {
+        regenerativeBraking = 0;
+    } else if (value > 1) {
+        regenerativeBraking = 1;
+    } else {
+        regenerativeBraking = value;
+    }  
+}
+
+// set the value of the acc_out pin
+void setAccOut(float acc) {
+    motorAccelerationOutput.write(acc);
+}
+
+// set the value of the regenerative brake output pin
+void setRegenBrakeOut(float value) {
+    regenerativeBrakingOutputPin.write(value);
 }
 
 // read all analog input
 void readAnalog(){
     readAcceleratorPedal();
     readRegenerativeBrakingInput();
+    setRegenBrakeOut(regenerativeBraking);
 }
 
 // Set up polling of analog IO at specified rate
@@ -49,12 +66,3 @@ void initAnalog(std::chrono::microseconds readSignalPeriod) {
     readAnalogDelay.attach(readAnalog, readSignalPeriod);
 }
 
-// set the value of the acc_out pin
-void setAccOut(float acc) {
-    motorAccelerationOutput.write(1-acc);
-}
-
-// set the value of the regenerative brake output pin
-void setRegenBrakeOut(float value) {
-    regenerativeBrakingOutputPin.write(value);
-}
