@@ -23,7 +23,7 @@ MCCState::~MCCState() {
 void MCCState::transition() {
     switch (state) {
         case MCCStates::PARK:
-            if (!digital_data.brakeStatus) {
+            if (!prk_brk) {
                 state = MCCStates::IDLE;
             }
             // OUTPUT: make sure the motor isn't spinning when it's in PARK
@@ -43,17 +43,12 @@ void MCCState::transition() {
                 } else {
                     state = MCCStates::REVERSE;
                 }
-
-            // park if brake is pressed and parking brake is set
-            } else if (digital_data.brakeStatus) {
-                state = MCCStates::PARK;
-            }
+            } 
             break;
 
         case MCCStates::REVERSE:
-            if (rpm < MIN_MOVING_SPEED) {
+            if (rpm < MIN_MOVING_SPEED && digital_data.brakeStatus) {
                 state = MCCStates::IDLE;
-                break;
             }
             // OUTPUT: set acc_out pin based on acc_in from the pedal
             setAccOut(acceleratorPedal);
@@ -62,7 +57,7 @@ void MCCState::transition() {
             break;
 
         case MCCStates::FORWARD:
-            if (rpm < MIN_MOVING_SPEED) {
+            if (rpm < MIN_MOVING_SPEED && digital_data.brakeStatus) {
                 state = MCCStates::IDLE;
 
             } else if (digital_data.cruiseEnabled) {
@@ -134,17 +129,20 @@ void MCCState::transition() {
         // the motor is off, so go into OFF state
         state = MCCStates::OFF;
         setAccOut(0.0);
-    } else if (digital_data.brakeStatus) {
+    } else if (prk_brk) {
         state = MCCStates::PARK;
         setAccOut(0.0);
     }
 
-    // set motor output to 0 if both brake and pedal are being pressed
+    // set motor output to 0 if either park or foot brake are being pressed
     if (digital_data.brakeStatus) {
         setAccOut(0.0);
     }
 
-    mccState = this->state;
+    // set brakeLED based on brakeStatus(foot and park brake) and regenerativeBraking
+    setBrakeLEDOutput(digital_data.brakeStatus || regenerativeBraking > REGEN_ON_THRESHOLD);
+
+    mccState = this->state; // used to send state over CAN
 }
 
 // returns the current state of the state machine
