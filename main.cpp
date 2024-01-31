@@ -8,9 +8,9 @@
 #include "telemetry.h"
 
 
-#define SPEED_CALC_INTERVAL 25ms
-#define ANALOG_CALC_INTERVAL 50000us
-#define DIGITAL_CALC_INTERVAL 50000us
+#define SPEED_CALC_INTERVAL 50ms
+#define ANALOG_CALC_INTERVAL 10000us
+#define DIGITAL_CALC_INTERVAL 10000us
 
 // time between checking for transitions in state machine in us
 #define SM_TRANSITION_INTERVAL 500000us
@@ -98,5 +98,6 @@ int main()
 
         canBus.send_mcc_data();
         canBus.runQueue(10ms);
+        wait_us(1000000);
     }
 }
