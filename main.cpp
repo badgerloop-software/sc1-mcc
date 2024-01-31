@@ -79,7 +79,7 @@ int main()
         printf("RPM: %f\n", rpm);
         printf("MPH: %f\n", mph);
         printf("Foot/Park Brake: %s\n", digital_data.brakeStatus ? "On" : "Off");
-        printf("Park Brake: %s\n", prk_brk ? "On" : "Off");
+        printf("Park Brake: %s\n", parkBrake ? "On" : "Off");
         printf("acceleratorPedal: %f\n", acceleratorPedal);
         switch(cruzMode) {
             case CRUZ_MODE::OFF :
