@@ -7,7 +7,7 @@ Ticker readDigitalDelay;
 // assign digital input to the correct pins
 DigitalIn setCruiseControlPin(PB_4);
 DigitalIn resetCruiseControlPin(PB_5);
-DigitalIn cruisePowerModePin(PB_6);
+DigitalIn parkBrakePin(PB_6); // used to be cruisePowerModePin
 DigitalIn cruiseSpeedModePin(PB_7);
 DigitalIn motorPowerPin(PA_0);
 DigitalIn directionInputPin(PA_7);
@@ -24,6 +24,8 @@ volatile struct Digital_Data digital_data = {};
 volatile CRUZ_MODE cruzMode = CRUZ_MODE::OFF;
 volatile float motorSpeedSetpoint = 0;
 
+volatile bool parkBrake = true;
+
 
 void readCruiseControl() {
   // read set cruise control input
@@ -34,19 +36,13 @@ void readCruiseControl() {
   // decrment
   bool resetCruz = resetCruiseControlPin.read();
 
-  // read cruise power mode input
-  bool cruisePowerMode = cruisePowerModePin.read();
-
   // read cruise speed mode input
   bool cruiseSpeedMode = cruiseSpeedModePin.read();
 
   float increment_by = 0;
 
   // set cruise control mode and set what to increment by
-  if (cruisePowerMode) {
-    cruzMode = CRUZ_MODE::POWER;
-    increment_by = INCREMENT_POWER;
-  } else if (cruiseSpeedMode) {
+  if (cruiseSpeedMode) {
     cruzMode = CRUZ_MODE::SPEED;
     increment_by = INCREMENT_RPM;
   } else {
@@ -96,6 +92,9 @@ void readEcoMode() { digital_data.ecoMode = ecoModePin.read(); }
 
 // read hand/foot brake status
 void readBrakeStatus() { digital_data.brakeStatus = brakeStatusPin.read(); }
+
+// read parking brake status
+void readParkBrake() { parkBrake = parkBrakePin.read(); }
 
 // read all the digital inputs
 void readDigital() {
