@@ -93,7 +93,6 @@ int main()
                 break;
         }
         printf("motorSpeedSetpoint: %f\n", motorSpeedSetpoint);
-        printf("parkingBrake: %s\n", digital_data.brakeStatus ? "On" : "Off");
         printf("Motor Error: %s", errorString(errorType));
 
         canBus.send_mcc_data();

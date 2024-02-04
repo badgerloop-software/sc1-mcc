@@ -103,6 +103,7 @@ void readDigital() {
   readForwardAndReverse();
   readEcoMode();
   readBrakeStatus();
+  readParkBrake();
 }
 
 // Set up polling of digital IO at specified rate
