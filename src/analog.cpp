@@ -9,7 +9,7 @@ AnalogInMutexless regenerativeBrakingInputPin(PB_1);
 
 // assign analog outputs to the correct pins
 //AnalogOutMutexless motorAccelerationOutput(A3);
-PwmOut motorAccelerationOutput(PA_4);
+AnalogOutMutexless motorAccelerationOutput(PA_4);
 PwmOut regenerativeBrakingOutputPin(PA_6);
 
 // initialize the analog inputs' readings

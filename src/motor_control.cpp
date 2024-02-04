@@ -47,7 +47,7 @@ void MCCState::transition() {
             break;
 
         case MCCStates::REVERSE:
-            if (rpm < MIN_MOVING_SPEED && digital_data.brakeStatus) {
+            if (rpm < MIN_MOVING_SPEED) {
                 state = MCCStates::IDLE;
             }
             // OUTPUT: set acc_out pin based on acc_in from the pedal
@@ -57,7 +57,7 @@ void MCCState::transition() {
             break;
 
         case MCCStates::FORWARD:
-            if (rpm < MIN_MOVING_SPEED && digital_data.brakeStatus) {
+            if (rpm < MIN_MOVING_SPEED) {
                 state = MCCStates::IDLE;
 
             } else if (digital_data.cruiseEnabled) {
