@@ -11,8 +11,8 @@ PwmOut pwmPin(PWM_PIN);
 int main()
 {
     //BufferedSerial serial(USBTX, USBRX, 115200);
-    BufferedSerial serial(USBTX, USBRX);
-    serial.set_blocking(true);
+    BufferedSerial serial(USBTX, USBRX, 115200);
+    //serial.set_blocking(true);
 
     // Fixed 10% duty cycle, the speed depends on frequency
     pwmPin.write(0.1);
@@ -20,6 +20,7 @@ int main()
 
     int simRPM = 0;
     char buf[1];
+    printf("hey\n");
 
     while(true)
     {
