@@ -26,6 +26,9 @@ volatile float motorSpeedSetpoint = 0;
 
 volatile bool parkBrake = true;
 
+bool pastSetCruz = false;
+bool pastResetCruz = false;
+
 
 void readCruiseControl() {
   // read set cruise control input
@@ -38,7 +41,7 @@ void readCruiseControl() {
 
   // read cruise speed mode input
   bool cruiseSpeedMode = cruiseSpeedModePin.read();
-
+  
   float increment_by = 0;
 
   // set cruise control mode and set what to increment by
@@ -53,6 +56,7 @@ void readCruiseControl() {
   // turn on)
   if (cruzMode == CRUZ_MODE::OFF || digital_data.brakeStatus) {
     digital_data.cruiseEnabled = false;
+    cruzMode = CRUZ_MODE::OFF; // make State Machine go back to FORWARD
     return;
   }
 
@@ -61,11 +65,12 @@ void readCruiseControl() {
   // if cruise control is on, make reset and set decrement and increment
   if (digital_data.cruiseEnabled) {
     // increments
-    if (setCruz) {
+    // 2/4: added rising edge detection and limits on how big/small motorSpeedSetpoint can be
+    if (setCruz && !pastSetCruz && motorSpeedSetpoint + increment_by <= CRUISE_SPEED_MAX_RPM) {
       motorSpeedSetpoint += increment_by;
     }
     // decrement
-    if (resetCruz) {
+    if (resetCruz && !pastResetCruz && motorSpeedSetpoint - increment_by >= 0) {
       motorSpeedSetpoint -= increment_by;
     }
   } else {
@@ -78,6 +83,10 @@ void readCruiseControl() {
       digital_data.cruiseEnabled = true;
     }
   }
+
+  // update past values used for rising edge detection
+  pastSetCruz = setCruz;
+  pastResetCruz = resetCruz;
 }
 
 

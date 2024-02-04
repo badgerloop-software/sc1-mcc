@@ -93,7 +93,10 @@ int main()
                 break;
         }
         printf("motorSpeedSetpoint: %f\n", motorSpeedSetpoint);
-        printf("Motor Error: %s", errorString(errorType));
+        printf("Motor Error: %s\n", errorString(errorType));
+        
+        // debug
+        printf("ecomode %s\n", digital_data.ecoMode ? "On" : "Off");
 
         canBus.send_mcc_data();
         canBus.runQueue(10ms);

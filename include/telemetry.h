@@ -44,6 +44,9 @@ enum class MCCStates : uint8_t {
 #define INCREMENT_RPM   21
 #define INCREMENT_POWER 420
 
+// TODO Tune this
+#define CRUISE_SPEED_MAX_RPM 200
+
 #define FORWARD_VALUE 0
 #define REVERSE_VALUE 1
 
