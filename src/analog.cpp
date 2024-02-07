@@ -55,7 +55,7 @@ void setRegenBrakeOut(float value) {
 void readAnalog(){
     readAcceleratorPedal();
     readRegenerativeBrakingInput();
-    setRegenBrakeOut(regenerativeBraking);
+    setRegenBrakeOut(0);
 }
 
 // Set up polling of analog IO at specified rate
