@@ -1,6 +1,7 @@
 #include "motor_control.h"
 
 volatile MCCStates mccState = MCCStates::OFF;
+volatile float speed_pid_compute = 0.0;
 
 // set default state to OFF
 MCCState::MCCState(std::chrono::microseconds ticker_delay) : state(MCCStates::OFF), 
@@ -13,6 +14,8 @@ MCCState::MCCState(std::chrono::microseconds ticker_delay) : state(MCCStates::OF
     power_PID.setOutputLimits(MIN_OUT, MAX_OUT);
     speed_PID.setInputLimits(MIN_RPM, MAX_RPM);
     speed_PID.setOutputLimits(MIN_OUT, MAX_OUT);
+    speed_PID.setMode(AUTO_MODE);
+    
     curr_PID = &power_PID;
 }
 
@@ -104,8 +107,10 @@ void MCCState::transition() {
             speed_PID.setProcessValue(rpm);
             // set target for speed_PID
             speed_PID.setSetPoint(motorSpeedSetpoint);
+            // 
+            speed_pid_compute = speed_PID.compute();
             // set accelerator 
-            setAccOut(speed_PID.compute());
+            setAccOut(speed_pid_compute);
             break;
 
         // OFF state as our default

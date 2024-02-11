@@ -14,7 +14,7 @@
 #define POWER_P_PARAM 0.0
 #define POWER_I_PARAM 0.0
 #define POWER_D_PARAM 0.0
-#define SPEED_P_PARAM 1.0/720
+#define SPEED_P_PARAM 2.5
 #define SPEED_I_PARAM 0.0
 #define SPEED_D_PARAM 0.0
 
@@ -22,7 +22,7 @@
 #define MIN_POWER 0.0
 #define MAX_POWER 1.0
 #define MIN_RPM 0.0
-#define MAX_RPM 48.0
+#define MAX_RPM 1000.0
 
 // limits for outputs of PID
 // is 0.0 to 1.0 due to how AnalogOut pins work.
