@@ -98,6 +98,7 @@ int main()
         // debug
         printf("ecomode %s\n", digital_data.ecoMode ? "On" : "Off");
         printf("regenbraking: %f\n", regenerativeBraking);
+        printf("speed_pid_compute: %f\n", speed_pid_compute);
 
         canBus.send_mcc_data();
         canBus.runQueue(10ms);
