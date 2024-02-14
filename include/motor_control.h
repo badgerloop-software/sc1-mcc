@@ -7,28 +7,6 @@
 #include "analog.h"
 #include "PID.h"
 
-#define MIN_MOVING_SPEED 3.0        // speed threshold for idle state
-
-
-// PID macros
-#define POWER_P_PARAM 0.0
-#define POWER_I_PARAM 0.0
-#define POWER_D_PARAM 0.0
-#define SPEED_P_PARAM 2.5
-#define SPEED_I_PARAM 0.0
-#define SPEED_D_PARAM 0.0
-
-// limits for power and speed PIDs.
-#define MIN_POWER 0.0
-#define MAX_POWER 1.0
-#define MIN_RPM 0.0
-#define MAX_RPM 1000.0
-
-// limits for outputs of PID
-// is 0.0 to 1.0 due to how AnalogOut pins work.
-#define MIN_OUT 0.0
-#define MAX_OUT 1.0
-
 class MCCState {
     private:
         MCCStates state;
