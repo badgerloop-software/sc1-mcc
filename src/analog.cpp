@@ -60,8 +60,8 @@ void readAnalog(){
 
 // Set up polling of analog IO at specified rate
 void initAnalog(std::chrono::microseconds readSignalPeriod) {
-    acceleratorPedalPin.set_reference_voltage(refrence_voltage);
-    regenerativeBrakingInputPin.set_reference_voltage(refrence_voltage);
+    acceleratorPedalPin.set_reference_voltage(REFERENCE_VOLTAGE);
+    regenerativeBrakingInputPin.set_reference_voltage(REFERENCE_VOLTAGE);
 
     readAnalogDelay.attach(readAnalog, readSignalPeriod);
 }
