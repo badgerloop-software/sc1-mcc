@@ -113,11 +113,14 @@ extern volatile float mph;
 
 extern volatile float acceleratorPedal;
 extern volatile float regenerativeBraking;
+extern volatile bool regenBrakeEnable;
 
 extern volatile float motorSpeedSetpoint;
 
 extern volatile bool parkBrake;
 
 extern volatile float speed_pid_compute;
+
+
 
 #endif
