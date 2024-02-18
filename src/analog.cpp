@@ -46,9 +46,13 @@ void setAccOut(float acc) {
     motorAccelerationOutput.write(acc);
 }
 
-// set the value of the regenerative brake output pin
+// set the value of the regenerative brake output pin IF regen braking is turned on
 void setRegenBrakeOut(float value) {
-    regenerativeBrakingOutputPin.write(value);
+    if (regenBrakeEnable) {
+        regenerativeBrakingOutputPin.write(value);
+    } else {
+        regenerativeBrakingOutputPin.write(0);
+    }
 }
 
 // read all analog input

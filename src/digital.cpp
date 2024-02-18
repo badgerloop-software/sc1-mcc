@@ -13,6 +13,8 @@ DigitalIn motorPowerPin(PA_0);
 DigitalIn directionInputPin(PA_7);
 DigitalIn ecoModePin(PA_5);
 DigitalIn brakeStatusPin(PA_8);
+// TODO: change the pin to the correct one, it's currently just an arbitrary unused pin
+DigitalIn regenBrakeEnablePin(PF_0); 
 
 // assign digital output to the correct pins
 DigitalOut directionOutputPin(PA_3);
@@ -25,9 +27,12 @@ volatile CRUZ_MODE cruzMode = CRUZ_MODE::OFF;
 volatile float motorSpeedSetpoint = 0;
 
 volatile bool parkBrake = true;
+volatile bool regenBrakeEnable = false;
 
 bool pastSetCruz = false;
 bool pastResetCruz = false;
+
+
 
 
 void readCruiseControl() {
@@ -105,6 +110,8 @@ void readBrakeStatus() { digital_data.brakeStatus = brakeStatusPin.read(); }
 // read parking brake status
 void readParkBrake() { parkBrake = parkBrakePin.read(); }
 
+void readRegenBrakeEnable() { regenBrakeEnable = regenBrakeEnablePin.read(); }
+
 // read all the digital inputs
 void readDigital() {
   readCruiseControl();
@@ -113,6 +120,7 @@ void readDigital() {
   readEcoMode();
   readBrakeStatus();
   readParkBrake();
+  readRegenBrakeEnable();
 }
 
 // Set up polling of digital IO at specified rate
