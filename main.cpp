@@ -101,7 +101,6 @@ int main()
         printf("speed_pid_compute: %f\n", speed_pid_compute);
 
         canBus.send_mcc_data();
-        canBus.runQueue(10ms);
-        wait_us(1000000);
+        canBus.runQueue(1000ms);
     }
 }
