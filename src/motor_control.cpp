@@ -144,8 +144,8 @@ void MCCState::transition() {
         setAccOut(0.0);
     }
 
-    // set brakeLED based on brakeStatus(foot and park brake) and regenerativeBraking
-    setBrakeLEDOutput(digital_data.brakeStatus || regenerativeBraking > REGEN_ON_THRESHOLD);
+    // set brakeLED based on analog brake sensor 
+    setBrakeLEDOutput(brakeSensor > BRAKE_SENSOR_THRESHOLD);
 
     mccState = this->state; // used to send state over CAN
 }

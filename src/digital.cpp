@@ -10,7 +10,7 @@ DigitalIn resetCruiseControlPin(PB_5);
 DigitalIn parkBrakePin(PB_6); // used to be cruisePowerModePin
 DigitalIn cruiseSpeedModePin(PB_7);
 DigitalIn motorPowerPin(PA_0);
-DigitalIn directionInputPin(PA_7);
+DigitalIn directionInputPin(PA_9);
 DigitalIn ecoModePin(PA_5);
 DigitalIn brakeStatusPin(PA_8);
 
