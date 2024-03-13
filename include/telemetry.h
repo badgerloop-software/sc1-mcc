@@ -62,6 +62,8 @@ enum class MCCStates : uint8_t {
 #define REGEN_ON_THRESHOLD 0 // TODO set actual value
 #define REGEN_RANGE 1 // TODO set actual value
 
+#define BRAKE_SENSOR_THRESHOLD 0.14 // 0.7/5
+
 //////////////////////////
 // motor_error.h macros //
 //////////////////////////
@@ -113,6 +115,7 @@ extern volatile float mph;
 
 extern volatile float acceleratorPedal;
 extern volatile float regenerativeBraking;
+extern volatile float brakeSensor;
 
 extern volatile float motorSpeedSetpoint;
 
