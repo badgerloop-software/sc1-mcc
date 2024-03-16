@@ -6,7 +6,7 @@
 /*
     Starts speed (RPM and MPH) calculations at specified interval
 */
-void startSpeedCalculation(std::chrono::milliseconds interval);
+void startSpeedCalculation();
 
 
 #endif // __SPEED_H__

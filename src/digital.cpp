@@ -36,7 +36,7 @@ void readCruiseControl() {
   bool setCruz = setCruiseControlPin.read();
 
   // read reset cruise control input
-  // decrment
+  // decrement
   bool resetCruz = resetCruiseControlPin.read();
 
   // read cruise speed mode input
@@ -90,29 +90,14 @@ void readCruiseControl() {
 }
 
 
-// read motor power input
-void readMotorPower() { digital_data.motorPower = motorPowerPin.read(); }
-
-// read forward and reverse input
-void readForwardAndReverse() { digital_data.forwardAndReverse = directionInputPin.read(); }
-
-// read eco mode input
-void readEcoMode() { digital_data.ecoMode = ecoModePin.read(); }
-
-// read hand/foot brake status
-void readBrakeStatus() { digital_data.brakeStatus = brakeStatusPin.read(); }
-
-// read parking brake status
-void readParkBrake() { parkBrake = parkBrakePin.read(); }
-
 // read all the digital inputs
 void readDigital() {
   readCruiseControl();
-  readMotorPower();
-  readForwardAndReverse();
-  readEcoMode();
-  readBrakeStatus();
-  readParkBrake();
+  digital_data.motorPower = motorPowerPin.read();
+  digital_data.forwardAndReverse = directionInputPin.read(); 
+  digital_data.ecoMode = ecoModePin.read();
+  digital_data.brakeStatus = brakeStatusPin.read(); 
+  parkBrake = parkBrakePin.read();
 }
 
 // Set up polling of digital IO at specified rate

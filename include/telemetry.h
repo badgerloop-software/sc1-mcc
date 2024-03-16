@@ -54,6 +54,7 @@ enum class MCCStates : uint8_t {
 // analog.h macros //
 /////////////////////
 // defining the reference voltage for analog inputs
+// TODO: maybe this should be 5
 #define REFERENCE_VOLTAGE 3.3
 
 #define PEDAL_ON_THRESHOLD 0.25 // 1.5V/5V

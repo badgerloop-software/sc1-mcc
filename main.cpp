@@ -7,13 +7,11 @@
 #include "speed.h"
 #include "telemetry.h"
 
-
-#define SPEED_CALC_INTERVAL 50ms
-#define ANALOG_CALC_INTERVAL 10000us
-#define DIGITAL_CALC_INTERVAL 10000us
+#define ANALOG_CALC_INTERVAL 50000us
+#define DIGITAL_CALC_INTERVAL 50000us
 
 // time between checking for transitions in state machine in us
-#define SM_TRANSITION_INTERVAL 500000us
+#define SM_TRANSITION_INTERVAL 50000us
 
 #define CAN_RX PA_11
 #define CAN_TX PA_12
@@ -25,7 +23,7 @@ int main()
     BufferedSerial terminal(USBTX, USBRX, 115200);
 
     // read RPM and MPH every 0.01 second
-    startSpeedCalculation(SPEED_CALC_INTERVAL);
+    startSpeedCalculation();
 
     // read all analog inputs every 0.01 second
     initAnalog(ANALOG_CALC_INTERVAL);
@@ -37,7 +35,7 @@ int main()
     MCCState state_machine(SM_TRANSITION_INTERVAL);
 
     // error LED reading
-    startErrorInterpretation();
+    //startErrorInterpretation();
 
     CANMCC canBus(CAN_RX, CAN_TX);
 
@@ -101,6 +99,6 @@ int main()
         printf("speed_pid_compute: %f\n", speed_pid_compute);
 
         canBus.send_mcc_data();
-        canBus.runQueue(1000ms);
+        canBus.runQueue(100ms);
     }
 }

@@ -1,6 +1,8 @@
 #include "can_mcc.h"
 
-CANMCC::CANMCC(PinName rd, PinName td, int frequency): CANManager(rd, td, frequency) {}
+CANMCC::CANMCC(PinName rd, PinName td, int frequency): CANManager(rd, td, frequency) {
+    filter(0, 0xFFF);
+}
 
 void CANMCC::readHandler(int messageID, SharedPtr<unsigned char> data, int length) {
 

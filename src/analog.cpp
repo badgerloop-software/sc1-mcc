@@ -17,50 +17,34 @@ volatile float acceleratorPedal = 0;
 volatile float regenerativeBraking = 0;
 volatile float brakeSensor = 0;
 
-// read accelerator pedal input
-void readAcceleratorPedal(){
-    float value = (acceleratorPedalPin.read() - PEDAL_ON_THRESHOLD) / PEDAL_RANGE;
-    if (value < 0) {
-        acceleratorPedal = 0;
-    } else if (value > 1) {
-        acceleratorPedal = 1;
-    } else {
-        acceleratorPedal = value;
-    }    
-}
-
-// read regenative braking input
-void readRegenerativeBrakingInput(){
-    float value = (regenerativeBrakingInputPin.read() - REGEN_ON_THRESHOLD) / REGEN_RANGE;
-    if (value < 0) {
-        regenerativeBraking = 0;
-    } else if (value > 1) {
-        regenerativeBraking = 1;
-    } else {
-        regenerativeBraking = value;
-    }  
-}
-
-void readBrakeSensor() {
-    brakeSensor = brakeSensorPin.read();
-}
-
 // set the value of the acc_out pin
 void setAccOut(float acc) {
     motorAccelerationOutput.write(acc);
 }
 
-// set the value of the regenerative brake output pin
-void setRegenBrakeOut(float value) {
-    regenerativeBrakingOutputPin.write(value);
-}
-
 // read all analog input
 void readAnalog(){
-    readAcceleratorPedal();
-    readRegenerativeBrakingInput();
-    readBrakeSensor();
-    setRegenBrakeOut(0);
+    // read Accelerator Input
+    acceleratorPedal = (acceleratorPedalPin.read() - PEDAL_ON_THRESHOLD) / PEDAL_RANGE;
+    if (acceleratorPedal < 0) {
+        acceleratorPedal = 0;
+    } else if (acceleratorPedal > 1) {
+        acceleratorPedal = 1;
+    } 
+
+    // read regen brake input
+    regenerativeBraking = (regenerativeBrakingInputPin.read() - REGEN_ON_THRESHOLD) / REGEN_RANGE;
+    if (regenerativeBraking < 0) {
+        regenerativeBraking = 0;
+    } else if (regenerativeBraking > 1) {
+        regenerativeBraking = 1;
+    } 
+
+    // read brake sensor
+    brakeSensor = brakeSensorPin.read();
+
+    // TODO: update this when regen braking is on the car
+    regenerativeBrakingOutputPin.write(0);
 }
 
 // Set up polling of analog IO at specified rate
