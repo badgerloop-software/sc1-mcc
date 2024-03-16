@@ -55,8 +55,6 @@ void MCCState::transition() {
             }
             // OUTPUT: set acc_out pin based on acc_in from the pedal
             setAccOut(acceleratorPedal);
-            // OUTPUT: set fr_out to reverse
-            setDirectionOutput(REVERSE_VALUE);
             break;
 
         case MCCStates::FORWARD:
@@ -75,19 +73,13 @@ void MCCState::transition() {
             
             // OUTPUT: set acc_out pin based on acc_in from the pedal
             setAccOut(acceleratorPedal);
-            // OUTPUT: set fr_out to forward.
-            setDirectionOutput(FORWARD_VALUE);
             break;
 
         case MCCStates::CRUISE_POWER:
-            if (cruzMode == CRUZ_MODE::OFF) {
+            if (cruzMode != CRUZ_MODE::POWER) {
                 state = MCCStates::FORWARD;
                 break;
-            } else if (cruzMode == CRUZ_MODE::SPEED) {
-                curr_PID = &speed_PID;
-                state = MCCStates::CRUISE_SPEED;
-                break;
-            }
+            } 
             // TODO: not enough stuff for power right now (10/22)
             // get current motor power
             // set setPoint to target power
@@ -95,19 +87,14 @@ void MCCState::transition() {
             break;
 
         case MCCStates::CRUISE_SPEED:
-            if (cruzMode == CRUZ_MODE::OFF) {
+            if (cruzMode != CRUZ_MODE::SPEED) {
                 state = MCCStates::FORWARD;
                 break;
-            } else if (cruzMode == CRUZ_MODE::POWER) {
-                curr_PID = &power_PID;
-                state = MCCStates::CRUISE_POWER;
-                break;
-            }
+            } 
             // set current rpm for speed_PID
             speed_PID.setProcessValue(rpm);
             // set target for speed_PID
             speed_PID.setSetPoint(motorSpeedSetpoint);
-            // 
             speed_pid_compute = speed_PID.compute();
             // set accelerator 
             setAccOut(speed_pid_compute);
