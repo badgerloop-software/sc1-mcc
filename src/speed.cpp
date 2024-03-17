@@ -3,7 +3,7 @@
 
 #define SPEED_CALC_INTERVAL 50ms
 #define SPEED_INTERVAL 50 
-#define ARRAY_SIZE 1250 / 50 // 1250ms/50ms
+#define ARRAY_SIZE 25 // 1250ms/50ms
 
 Ticker rpmTicker;
 
