@@ -1,11 +1,19 @@
 #include "can_mcc.h"
 
+volatile float dischargeCurrentLimit;
+
 CANMCC::CANMCC(PinName rd, PinName td, int frequency): CANManager(rd, td, frequency) {
     filter(0, 0xFFF);
 }
 
 void CANMCC::readHandler(int messageID, SharedPtr<unsigned char> data, int length) {
-
+    switch (messageID) {
+        case 0x103:
+            dischargeCurrentLimit = (float)(*(uint16_t*)data.get()) * CONST_CURR_SAFETY_MULT;
+            break;
+        default:
+            break;
+    }
 }
 
 void CANMCC::send_mcc_data() {
