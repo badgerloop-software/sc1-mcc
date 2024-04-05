@@ -23,4 +23,6 @@ void CANMCC::send_mcc_data() {
     this->sendMessage(0x205, &float_helper, 4, 1ms);
     float_helper = mph;
     this->sendMessage(0x206, &float_helper, 4, 1ms);
+    float_helper = brakeSensor;
+    this->sendMessage(0x207, &float_helper, 4, 1ms);
 }
