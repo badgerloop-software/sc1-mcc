@@ -12,7 +12,6 @@ DigitalIn cruiseSpeedModePin(PB_7);
 DigitalIn motorPowerPin(PA_0);
 DigitalIn directionInputPin(PA_9);
 DigitalIn ecoModePin(PA_5);
-DigitalIn brakeStatusPin(PA_8);
 
 // assign digital output to the correct pins
 DigitalOut directionOutputPin(PA_3);
@@ -96,7 +95,6 @@ void readDigital() {
   digital_data.motorPower = motorPowerPin.read();
   digital_data.forwardAndReverse = directionInputPin.read(); 
   digital_data.ecoMode = ecoModePin.read();
-  digital_data.brakeStatus = brakeStatusPin.read(); 
   parkBrake = parkBrakePin.read();
 }
 

@@ -125,12 +125,11 @@ void MCCState::transition() {
         state = MCCStates::PARK;
         setAccOut(0.0);
     }
-
-    // set motor output to 0 if either park or foot brake are being pressed
-    if (digital_data.brakeStatus) {
+    
+    // set motor output to 0 if foot brake is being pressed
+    if (brakeSensor > BRAKE_SENSOR_THRESHOLD) {
         setAccOut(0.0);
     }
-
     // set brakeLED based on analog brake sensor 
     setBrakeLEDOutput(brakeSensor > BRAKE_SENSOR_THRESHOLD);
 
