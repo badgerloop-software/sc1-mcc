@@ -124,4 +124,9 @@ extern volatile bool parkBrake;
 
 extern volatile float speed_pid_compute;
 
+// TODO set actual values
+#define CONST_CURR_SAFETY_MULT 0.9
+#define DSCHRG_CUR_LIMIT_THRESHOLD 1 
+#define MAX_ACC_OUT_WHEN_CUR_LIMIT 0.7
+extern volatile float dischargeCurrentLimit;
 #endif
