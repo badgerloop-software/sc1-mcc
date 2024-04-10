@@ -7,11 +7,12 @@
 #include "speed.h"
 #include "telemetry.h"
 
-#define ANALOG_CALC_INTERVAL 50000us
-#define DIGITAL_CALC_INTERVAL 50000us
+#define ANALOG_CALC_INTERVAL 50ms
+#define DIGITAL_CALC_INTERVAL 50ms
+#define CAN_SEND_INTERVAL   50ms
 
 // time between checking for transitions in state machine in us
-#define SM_TRANSITION_INTERVAL 50000us
+#define SM_TRANSITION_INTERVAL 50ms
 
 #define CAN_RX PA_11
 #define CAN_TX PA_12
@@ -99,6 +100,6 @@ int main()
         printf("speed_pid_compute: %f\n", speed_pid_compute);
 
         canBus.send_mcc_data();
-        canBus.runQueue(100ms);
+        canBus.runQueue(CAN_SEND_INTERVAL);
     }
 }
