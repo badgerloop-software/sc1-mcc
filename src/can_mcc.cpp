@@ -1,15 +1,21 @@
 #include "can_mcc.h"
 
-volatile float dischargeCurrentLimit;
+volatile float packOpenVoltage;
+volatile float speed_target;
 
 CANMCC::CANMCC(PinName rd, PinName td, int frequency): CANManager(rd, td, frequency) {
     filter(0, 0xFFF);
 }
 
 void CANMCC::readHandler(int messageID, SharedPtr<unsigned char> data, int length) {
+    unsigned char *data_value = NULL;
     switch (messageID) {
-        case 0x103:
-            dischargeCurrentLimit = (float)(*(uint16_t*)data.get()) * CONST_CURR_SAFETY_MULT;
+        case 0x101:
+            data_value = data.get();
+            packOpenVoltage = ((data_value[2] << 8) + data_value[3]) * 0.1;
+            break;
+        case 0x026:
+            speed_target = (float)(*(uint16_t*)data.get());
             break;
         default:
             break;

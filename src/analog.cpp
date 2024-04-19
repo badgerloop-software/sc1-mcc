@@ -20,8 +20,8 @@ volatile float brakeSensor = 0;
 // set the value of the acc_out pin
 void setAccOut(float acc) {
     // if battery current output is low, cap acc_out's max value
-    if (dischargeCurrentLimit < DSCHRG_CUR_LIMIT_THRESHOLD && acc > MAX_ACC_OUT_WHEN_CUR_LIMIT) {
-        motorAccelerationOutput.write(MAX_ACC_OUT_WHEN_CUR_LIMIT);
+    if (packOpenVoltage <= PACK_VOLTAGE_THRESHOLD && acc > MAX_ACC_OUT_WHEN_PACK_LIMIT) {
+        motorAccelerationOutput.write(MAX_ACC_OUT_WHEN_PACK_LIMIT);
     } else {
         motorAccelerationOutput.write(acc);
     }
