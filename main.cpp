@@ -7,6 +7,8 @@
 #include "speed.h"
 #include "telemetry.h"
 
+#define DEBUG_PRINT 1
+
 #define ANALOG_CALC_INTERVAL 50ms
 #define DIGITAL_CALC_INTERVAL 50ms
 #define CAN_SEND_INTERVAL   50ms
@@ -17,6 +19,66 @@
 #define CAN_RX PA_11
 #define CAN_TX PA_12
 
+#if DEBUG_PRINT
+void debugPrint() {
+    printf("\e[1;1H\e[2J");
+    //state printout
+    switch (mccState) {
+        case MCCStates::OFF :
+            printf("State: OFF\n");
+            break;
+        case MCCStates::PARK :
+            printf("State: PARK\n");
+            break;
+        case MCCStates::IDLE :
+            printf("State: IDLE\n");
+            break;
+        case MCCStates::FORWARD :
+            printf("State: FORWARD\n");
+            break;
+        case MCCStates::REVERSE :
+            printf("State: REVERSE\n");
+            break;
+        case MCCStates::CRUISE_POWER :
+            printf("State: CRUISE\n");
+            break;
+        case MCCStates::CRUISE_SPEED:
+            printf("State: CRUISE\n");
+            break;
+        default:
+            printf("Unknown state?\n");
+            break;
+    }
+
+    // inputs
+    printf("INPUTS-------------------------------\n");
+    printf("Motor Power: %s\n", digital_data.motorPower ? "On" : "Off");
+    printf("Forward and Reverse: %s\n", digital_data.forwardAndReverse ? "Reverse" : "Forward");
+    printf("RPM: %f\n", rpm);
+    printf("MPH: %f\n", mph);
+    printf("Foot Brake: %f\n", brakeSensor);
+    printf("Park Brake: %s\n", digital_data.parkBrake ? "On" : "Off");
+    printf("acceleratorPedal: %f\n", acceleratorPedal);
+    switch(cruzMode) {
+        case CRUZ_MODE::OFF :
+            printf("cruzMode: OFF\n");
+            break;
+        case CRUZ_MODE::POWER :
+            printf("cruzMode: POWER\n");
+            break;
+        case CRUZ_MODE::SPEED :
+            printf("cruzMode: SPEED\n");
+            break;
+    }
+    printf("motorSpeedSetpoint: %f\n", motorSpeedSetpoint);
+    printf("Motor Error: %s\n", errorString(errorType));
+    
+    // debug
+    printf("ecomode %s\n", digital_data.ecoMode ? "On" : "Off");
+    printf("regenbraking: %f\n", regenerativeBraking);
+    printf("speed_pid_compute: %f\n", speed_pid_compute);
+}
+#endif
 
 int main()
 {
@@ -40,65 +102,17 @@ int main()
 
     CANMCC canBus(CAN_RX, CAN_TX);
 
+#if DEBUG_PRINT
+    int print_counter = 0;
+#endif
 
     while(true){
-        printf("\e[1;1H\e[2J");
-        //state printout
-        switch (state_machine.get_state()) {
-            case MCCStates::OFF :
-                printf("State: OFF\n");
-                break;
-            case MCCStates::PARK :
-                printf("State: PARK\n");
-                break;
-            case MCCStates::IDLE :
-                printf("State: IDLE\n");
-                break;
-            case MCCStates::FORWARD :
-                printf("State: FORWARD\n");
-                break;
-            case MCCStates::REVERSE :
-                printf("State: REVERSE\n");
-                break;
-            case MCCStates::CRUISE_POWER :
-                printf("State: CRUISE\n");
-                break;
-            case MCCStates::CRUISE_SPEED:
-                printf("State: CRUISE\n");
-                break;
-            default:
-                printf("Unknown state?\n");
-                break;
-        }
-
-        // inputs
-        printf("INPUTS-------------------------------\n");
-        printf("Motor Power: %s\n", digital_data.motorPower ? "On" : "Off");
-        printf("Forward and Reverse: %s\n", digital_data.forwardAndReverse ? "Reverse" : "Forward");
-        printf("RPM: %f\n", rpm);
-        printf("MPH: %f\n", mph);
-        printf("Foot/Park Brake: %s\n", digital_data.brakeStatus ? "On" : "Off");
-        printf("Park Brake: %s\n", parkBrake ? "On" : "Off");
-        printf("acceleratorPedal: %f\n", acceleratorPedal);
-        switch(cruzMode) {
-            case CRUZ_MODE::OFF :
-                printf("cruzMode: OFF\n");
-                break;
-            case CRUZ_MODE::POWER :
-                printf("cruzMode: POWER\n");
-                break;
-            case CRUZ_MODE::SPEED :
-                printf("cruzMode: SPEED\n");
-                break;
-        }
-        printf("motorSpeedSetpoint: %f\n", motorSpeedSetpoint);
-        printf("Motor Error: %s\n", errorString(errorType));
-        
-        // debug
-        printf("ecomode %s\n", digital_data.ecoMode ? "On" : "Off");
-        printf("regenbraking: %f\n", regenerativeBraking);
-        printf("speed_pid_compute: %f\n", speed_pid_compute);
-
+#if DEBUG_PRINT
+        // Print every second
+        print_counter++;
+        if (print_counter > 1000 / CAN_SEND_INTERVAL.count()) debugPrint();
+#endif
+    
         canBus.send_mcc_data();
         canBus.runQueue(CAN_SEND_INTERVAL);
     }

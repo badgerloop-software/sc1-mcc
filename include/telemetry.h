@@ -9,7 +9,7 @@ struct Digital_Data {
   bool motorPower : 1;
   bool forwardAndReverse : 1;
   bool ecoMode : 1;
-  bool brakeStatus : 1;
+  bool parkBrake : 1;
 };
 
 enum class CRUZ_MODE : uint8_t {
@@ -119,8 +119,6 @@ extern volatile float regenerativeBraking;
 extern volatile float brakeSensor;
 
 extern volatile float motorSpeedSetpoint;
-
-extern volatile bool parkBrake;
 
 extern volatile float speed_pid_compute;
 

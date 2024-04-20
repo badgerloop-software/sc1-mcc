@@ -26,7 +26,7 @@ MCCState::~MCCState() {
 void MCCState::transition() {
     switch (state) {
         case MCCStates::PARK:
-            if (!parkBrake) {
+            if (!digital_data.parkBrake) {
                 state = MCCStates::IDLE;
             }
             // OUTPUT: make sure the motor isn't spinning when it's in PARK
@@ -121,7 +121,7 @@ void MCCState::transition() {
         // the motor is off, so go into OFF state
         state = MCCStates::OFF;
         setAccOut(0.0);
-    } else if (parkBrake) {
+    } else if (digital_data.parkBrake) {
         state = MCCStates::PARK;
         setAccOut(0.0);
     }
