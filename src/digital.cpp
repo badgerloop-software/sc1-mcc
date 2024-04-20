@@ -23,10 +23,8 @@ volatile struct Digital_Data digital_data = {};
 volatile CRUZ_MODE cruzMode = CRUZ_MODE::OFF;
 volatile float motorSpeedSetpoint = 0;
 
-volatile bool parkBrake = true;
-
-bool pastSetCruz = false;
-bool pastResetCruz = false;
+static bool pastSetCruz = false;
+static bool pastResetCruz = false;
 
 
 void readCruiseControl() {
@@ -53,7 +51,7 @@ void readCruiseControl() {
 
   // if mode is off or brake is pressed, cruise control is off (and can't be
   // turn on)
-  if (cruzMode == CRUZ_MODE::OFF || digital_data.brakeStatus) {
+  if (cruzMode == CRUZ_MODE::OFF || brakeSensor > BRAKE_SENSOR_THRESHOLD || digital_data.parkBrake) {
     digital_data.cruiseEnabled = false;
     cruzMode = CRUZ_MODE::OFF; // make State Machine go back to FORWARD
     return;
@@ -95,7 +93,7 @@ void readDigital() {
   digital_data.motorPower = motorPowerPin.read();
   digital_data.forwardAndReverse = directionInputPin.read(); 
   digital_data.ecoMode = ecoModePin.read();
-  parkBrake = parkBrakePin.read();
+  digital_data.parkBrake = parkBrakePin.read();
 }
 
 // Set up polling of digital IO at specified rate
