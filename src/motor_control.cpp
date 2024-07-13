@@ -61,7 +61,8 @@ void MCCState::transition() {
             if (rpm < MIN_MOVING_SPEED) {
                 state = MCCStates::IDLE;
 
-            } else if (digital_data.cruiseEnabled) {
+            // Cruise PID will not be tuned for comp. Disable
+            } /* else if (digital_data.cruiseEnabled) {
                 if (cruzMode == CRUZ_MODE::POWER) {
                     curr_PID = &power_PID;
                     state = MCCStates::CRUISE_POWER;
@@ -69,7 +70,7 @@ void MCCState::transition() {
                     curr_PID = &speed_PID;
                     state = MCCStates::CRUISE_SPEED;
                 }
-            }
+            } */
             
             // OUTPUT: set acc_out pin based on acc_in from the pedal
             setAccOut(acceleratorPedal);
