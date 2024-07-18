@@ -102,7 +102,7 @@ enum class MCCStates : uint8_t {
 // speed.h macros //
 ////////////////////
 // The circumference of the wheel used for mph calculation, in inches
-#define WHEEL_CIRCUMFERENCE 73
+#define WHEEL_CIRCUMFERENCE 69
 
 
 // Variables to store readings
